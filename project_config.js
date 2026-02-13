@@ -27,7 +27,7 @@ ProjModules = [ ProjName ];
 // ProjSegments = "";
 
 //-- List of library modules to build (array)
-LibModules = [ "v9990", "system", "input", "vdp", "psg", "print", "memory", "debug", "math", "pcm/pcmenc", "pt3/pt3_player", "vgm/vgm_player" ];
+LibModules = [ "v9990", "system", "input", "vdp", "psg", "print", "memory", "debug", "math", "pcm/pcmenc", "vgm/vgm_player" ];
 
 //-- Additional sources to be compiled and linked with the project (array)
 // AddSources = [];
@@ -104,7 +104,7 @@ BankedCall = true;
 
 //-- List of raw data files to be added to final binary (array). Each entry must be in the following format: { offset:0x0000, file:"myfile.bin" }
 RawFiles = [
-
+    { segment: 50, file: "vgm/psg_menu.vgm"}
 ];
 
 //-- Size of the final disk (.DSK file). Can be "360K" or "720K" (string)
@@ -172,7 +172,7 @@ BuildLibrary = true;
 // CompileOpt = "";
 
 //-- Skip file if compile data (REL) is newer than the source code (boolean)
-CompileSkipOld = true;
+//CompileSkipOld = true;
 
 //-- Additionnal link options (string)
 // LinkOpt = "";

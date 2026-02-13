@@ -14,6 +14,8 @@
 #include "input.h"
 #include "pt3/pt3_player.h"
 #include "memory.h"
+#include "soccerlg_rawdef.h"
+#include "vgm/vgm_player.h"
 
 // -----------------
 // *** FUNCTIONS ***
@@ -221,8 +223,9 @@ void MainSub(){
 
 	LoadPresentation();
 	Trampoline_VOID(3,InitializeMenuV9990Layers);
+	PlayVGM(VGM_MENU);
 	Trampoline_VOID(4,ShowMenu);
-	V9_SetPort(V9_P15, 0x10);
-    
-	
-}
+	VGM_Stop();
+
+	V9_SetPort(V9_P15, 0x10);	
+} 

@@ -11,6 +11,8 @@
 // *** STRUCTURES ***
 // ------------------
 
+
+
 typedef struct PlayerInfo
 {
 	u16		Y;		
@@ -92,31 +94,12 @@ extern bool				g_ShowButtonsInfo;
 extern u8          		g_Team1ActivePlayer;
 extern u8          		g_Team2ActivePlayer;
 
+
 // ---------------
 // *** DEFINES ***
 // ---------------
 
-#define PT3_MENU                            10
-#define PT3_MATCH                           11
-#define PT3_STADIUM                         12
-
-
-#define SOUND_KICKOFF						1
-#define SOUND_REFEREE						2
-#define SOUND_CORNERKICK					3
-#define SOUND_GOALKICK						4
-#define SOUND_INGOAL						5
-#define SOUND_INGOAL1						6
-#define SOUND_INGOAL2						7
-#define SOUND_THROWIN						8
-#define SOUND_PERFORM_PASS					9
-#define SOUND_TEAM_SELECTION                10
-#define SOUND_SHOT							11
-#define SOUND_GKHANDS						12
-#define SOUND_TACKLE						13
-#define SOUND_BALL							14
-#define SOUND_STADIUM                       15
-
+#define VGM_MENU                            0
 
 #define SPRITE_BALL	11
 
@@ -304,6 +287,7 @@ extern u8          		g_Team2ActivePlayer;
 #define MATCH_VICTORY_LAP					16
 #define MATCH_PENALTY_SHOOTOUT              17
 #define MATCH_PENALTY_SETUP                 18
+#define MATCH_SHOW_MENU                     19
 
 #define PON_PON_GIRLS_POSE_SPEED			3
 
@@ -350,7 +334,7 @@ void InterruptHook();
 void Trampoline_VOID(u8 bank, void (*func)());
 void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1);
 u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)());
-
+void PlayVGM(u8 vgmId);
 
 // +++ SEGMENT 2 +++
 void MainSub();
@@ -372,3 +356,6 @@ u8 SelectTeam(u8 cursorPatternId, u8 excludeIndex);
 void ShowMenu();
 void MenuSpriteBlinking();
 void ResetPlayersInfo();
+
+// +++ SEGMENT 5 +++
+

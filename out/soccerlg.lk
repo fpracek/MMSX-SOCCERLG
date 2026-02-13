@@ -5,6 +5,7 @@
 -b_SEG2=0x00028000
 -b_SEG3=0x00038000
 -b_SEG4=0x00048000
+-b_SEG5=0x00058000
 -b_SEG30=0x001E8000
 -b_SEG31=0x001F8000
 -b_SEG32=0x00208000
@@ -28,6 +29,7 @@ E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s2_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s3_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s4_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s5_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s30_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s31_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s32_b1.rel

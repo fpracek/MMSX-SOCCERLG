@@ -45,7 +45,6 @@ u8 SelectTeam(u8 cursorPatternId, u8 excludeIndex) {
 
     while (true) {
         WaitV9990Synch();
-
         dir=Trampoline_VOID_RETURN(2,GetJoystickDirection);
         
         trigger=Trampoline_VOID_RETURN(2,IsTeamJoystickTriggerPressed);
@@ -156,6 +155,7 @@ void ResetPlayersInfo(){
 
 // +++ Show menu ++++
 void ShowMenu(){
+    
 	for(u8 i=0;i<32;i++){
 		struct V9_Sprite attr;
 		attr.D = 1;
@@ -187,6 +187,7 @@ void ShowMenu(){
 	
 	V9_SetDisplayEnable(TRUE);
 	V9990_PrintLayerAStringAtPos(4,0,"    PLAYER TEAM SELECT");
+    g_MatchStatus=MATCH_SHOW_MENU;
     g_Team1PaletteId = SelectTeam(SPRITE_PLAYER, NO_VALUE);
 	
 	

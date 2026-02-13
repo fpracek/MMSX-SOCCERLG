@@ -14,7 +14,20 @@
 #include "input.h"
 #include "pt3/pt3_player.h"
 #include "memory.h"
+#include "vgm/vgm_player.h"
+#include "psg.h"
+#include "soccerlg_rawdef.h"
 
+// ------------------
+// *** STRUCTURES ***
+// ------------------
+
+struct MusicEntry
+{
+    const c8* Name;
+    u16       Data;
+    u8        Segment;
+};
 
 // -----------------
 // *** VARIABLES ***
@@ -56,8 +69,13 @@ extern const unsigned char  g_Data_Palette_Gray_Scale[];					// Segment 39
 extern const unsigned char  g_Data_Palette_Buttons[];						// Segment 39
 extern const unsigned char  g_Data_Sprites_Part1[16384];					// Segment 40
 extern const unsigned char  g_Data_Sprites_Part2[16384];					// Segment 41
-extern const unsigned char g_Data_Img_Buttons_Presentation_Part1[16384]; 	// Segment 42
-extern const unsigned char g_Data_Img_Buttons_Presentation_Part2[16384]; 	// Segment 43
+extern const unsigned char  g_Data_Img_Buttons_Presentation_Part1[16384]; 	// Segment 42
+extern const unsigned char  g_Data_Img_Buttons_Presentation_Part2[16384]; 	// Segment 43
+
+const struct MusicEntry g_MusicEntry[] =
+{
+	{ "Dragon Slayer 4    ", 0x8000 + PSG_MENU_VGM_REL,       PSG_MENU_VGM_SEG }
+};
 
 // -----------------------------
 // *** TRAMPOLINES FUNCTIONS ***
@@ -77,7 +95,6 @@ void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1) {
     func(p1);
     SET_BANK_SEGMENT(1, _old);
 }
-
 // +++ Call void function without parameters with u8 returned value +++
 u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)()) {
     u8 _res;
@@ -86,6 +103,18 @@ u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)()) {
     _res = func();
     SET_BANK_SEGMENT(1, _old);
     return _res;
+}
+
+// -----------
+// *** VGM ***
+// -----------
+
+// +++ Play VGM +++
+void PlayVGM(u8 vgmId){
+	u8 currentSegment = GET_BANK_SEGMENT(1);
+	SET_BANK_SEGMENT(1, g_MusicEntry[vgmId].Segment);
+	VGM_Play(g_MusicEntry[vgmId].Data,TRUE);
+	SET_BANK_SEGMENT(1, currentSegment);
 }
 
 // ---------------------
@@ -104,13 +133,14 @@ void LoadMsxVdpFonts() {
 // -------------
 
 void V9990_LoadButtonsImageData(){
+		u8 currentSegment = GET_BANK_SEGMENT(1);
 		SET_BANK_SEGMENT(1, 42); 
 		V9_WriteVRAM(V9_P1_PGT_A, g_Data_Img_Buttons_Presentation_Part1, sizeof(g_Data_Img_Buttons_Presentation_Part1)); // Load tiles (part 1)
 		SET_BANK_SEGMENT(1, 43); 
 		V9_WriteVRAM(V9_P1_PGT_A + 16384, g_Data_Img_Buttons_Presentation_Part2, sizeof(g_Data_Img_Buttons_Presentation_Part2)); // Load tiles (part 2)	
  	    SET_BANK_SEGMENT(1, 39);
 		V9_SetPalette(0, 16, g_Data_Palette_Buttons); 
-		
+		SET_BANK_SEGMENT(1, currentSegment);
 }
 // +++ Load P1 mode layer A +++
 void V9990_LoadP1LayerA(){
@@ -151,7 +181,6 @@ void V9990_LoadMenuTeamsData(){
 	V9_SetPalette(0, 16, g_Data_Palette_Teams_Colors);
 	SET_BANK_SEGMENT(1, currentSegment);
 }
-
 // +++ Load sprites +++
 void V9990_LoadSprites(){
 	u8 currentSegment = GET_BANK_SEGMENT(1);
@@ -163,7 +192,6 @@ void V9990_LoadSprites(){
 	SET_BANK_SEGMENT(1, currentSegment);
 
 }
-
 // +++ Print a string on screen ++++
 void V9990_PrintLayerAStringAtPos(u8 x, u8 y, const c8* str)
 {
@@ -175,7 +203,6 @@ void V9990_PrintLayerAStringAtPos(u8 x, u8 y, const c8* str)
 	}
 		
 }
-
 // +++ Wait V9990 synch +++
 void WaitV9990Synch()
 {
@@ -185,8 +212,15 @@ void WaitV9990Synch()
 	if(g_FrameCounter==60){
 		g_FrameCounter=0;
 	}
+	if(g_MatchStatus==MATCH_SHOW_MENU){
+	       	u8 currentSegment = GET_BANK_SEGMENT(1);
+			SET_BANK_SEGMENT(1, PSG_MENU_VGM_SEG);
+			VGM_Decode();
+			PSG_Apply();
+			SET_BANK_SEGMENT(1, currentSegment);
+        return;
+    }
 }
-
 // +++ VBlank interrupt +++
 void V9_InterruptVBlank(){
 
@@ -194,6 +228,7 @@ void V9_InterruptVBlank(){
         g_Timer++;
         return;
     }
+	
    
 	g_VSynch = TRUE;
 	if (g_FieldScrollingActionInProgress != NO_VALUE) {
@@ -204,7 +239,6 @@ void V9_InterruptVBlank(){
 
 	
 }
-
 // +++ Install VBlank interrupt +++
 void InterruptHook()
 {

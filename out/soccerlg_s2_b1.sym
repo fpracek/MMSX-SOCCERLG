@@ -17,6 +17,7 @@ Symbol Table
     _LoadMsxVdpFonts                                                ******** GX
   7 _LoadPresentation                                               00000136 GR
   7 _MainSub                                                        000002C4 GR
+    _PlayVGM                                                        ******** GX
     _Print_DrawText                                                 ******** GX
     _Print_SetColor                                                 ******** GX
     _PutPonPonGirlSprite                                            ******** GX
@@ -37,11 +38,12 @@ Symbol Table
     _VDP_ClearVRAM                                                  ******** GX
     _VDP_RegWriteBakMask                                            ******** GX
     _VDP_SetMode                                                    ******** GX
-  7 ___str_0                                                        00000373 R
-  7 ___str_1                                                        00000384 R
-  7 ___str_2                                                        000003A7 R
-  7 ___str_3                                                        000003B9 R
-  7 ___str_4                                                        000003C6 R
+    _VGM_Stop                                                       ******** GX
+  7 ___str_0                                                        0000037A R
+  7 ___str_1                                                        0000038B R
+  7 ___str_2                                                        000003AE R
+  7 ___str_3                                                        000003C0 R
+  7 ___str_4                                                        000003CD R
     _g_ACPAGE                                                   =   0000FAF6 G
     _g_ASPCT1                                                   =   0000F40B G
     _g_ASPCT2                                                   =   0000F40D G
@@ -56,13 +58,13 @@ Symbol Table
     _g_BOTTOM                                                   =   0000FC48 G
     _g_BRDATR                                                   =   0000FCB2 G
     _g_BREAKV                                                   =   0000F325 G
-    _g_Ball                                                         ******** GX
-    _g_CAPST                                                    =   0000FCAB G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 2
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_Ball                                                         ******** GX
+    _g_CAPST                                                    =   0000FCAB G
     _g_CASPRV                                                   =   0000FCB1 G
     _g_CGTABL                                                   =   00000004 G
     _g_CHAR_16                                                  =   00000034 G
@@ -116,13 +118,13 @@ Symbol Table
     _g_GRPHED                                                   =   0000FCA6 G
     _g_GRPNAM                                                   =   0000F3C7 G
     _g_GRPPAT                                                   =   0000F3CF G
-    _g_GXPOS                                                    =   0000FCB3 G
-    _g_GYPOS                                                    =   0000FCB5 G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 3
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_GXPOS                                                    =   0000FCB3 G
+    _g_GYPOS                                                    =   0000FCB5 G
     _g_HEADER                                                   =   0000F40A G
     _g_HIGH                                                     =   0000F408 G
     _g_HIMEM                                                    =   0000FC4A G
@@ -176,13 +178,13 @@ Symbol Table
     _g_OLDSCR                                                   =   0000FCB0 G
     _g_OLDSTT                                                   =   0000FB0C G
     _g_ONGSBF                                                   =   0000FBD8 G
-    _g_PADX                                                     =   0000FC9D G
-    _g_PADY                                                     =   0000FC9C G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 4
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_PADX                                                     =   0000FC9D G
+    _g_PADY                                                     =   0000FC9C G
     _g_PATWRK                                                   =   0000FC40 G
     _g_PLYCNT                                                   =   0000FB40 G
     _g_PROCNM                                                   =   0000FD89 G
@@ -236,13 +238,13 @@ Symbol Table
     _g_RG5SAV                                                   =   0000F3E4 G
     _g_RG6SAV                                                   =   0000F3E5 G
     _g_RG7SAV                                                   =   0000F3E6 G
-    _g_ROMA                                                     =   0000FAFA G
-    _g_ROMVersion                                               =   0000002B G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 5
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_ROMA                                                     =   0000FAFA G
+    _g_ROMVersion                                               =   0000002B G
     _g_RS2IQ                                                    =   0000FAF5 G
     _g_RSFCB                                                    =   0000FB04 G
     _g_RSIQLN                                                   =   0000FB06 G
@@ -296,13 +298,13 @@ Symbol Table
     _g_V9_VRAMPort                                              =   00000060 
     _g_VCBA                                                     =   0000FB41 G
     _g_VCBB                                                     =   0000FB66 G
-    _g_VCBC                                                     =   0000FB8B G
-    _g_VDP_AddrPort                                             =   00000099 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 6
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_VCBC                                                     =   0000FB8B G
+    _g_VDP_AddrPort                                             =   00000099 
     _g_VDP_DR                                                   =   00000006 G
     _g_VDP_DW                                                   =   00000007 G
     _g_VDP_DataPort                                             =   00000098 
@@ -317,6 +319,7 @@ Symbol Table
     _g_XSAVE                                                    =   0000FAFE G
     _g_YSAVE                                                    =   0000FB00 G
 
+
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 7
 Hexadecimal [32-Bits]
 
@@ -329,7 +332,7 @@ Area Table
    4 _HOME                                      size        0   flags    0
    5 _GSINIT                                    size        0   flags    0
    6 _GSFINAL                                   size        0   flags    0
-   7 _SEG2                                      size      3EC   flags    0
+   7 _SEG2                                      size      3F3   flags    0
    8 _INITIALIZER                               size        0   flags    0
    9 _CABS                                      size        0   flags    8
 
