@@ -71,6 +71,7 @@ typedef struct TeamStats
 #endif
 
 
+
 // -----------------
 // *** VARIABLES ***
 // -----------------
@@ -93,6 +94,16 @@ extern u8               g_Team2PaletteId;
 extern bool				g_ShowButtonsInfo;
 extern u8          		g_Team1ActivePlayer;
 extern u8          		g_Team2ActivePlayer;
+extern u8				g_SecondsToEndOfMatch;
+extern u8				g_Team1Score;
+extern u8				g_Team2Score;
+extern u8				g_RestartKickTeamId;
+extern u8				g_PassTargetPlayer;
+extern u8 				g_ponPonPatternIndex;
+extern PonPonGirlInfo  	g_PonPonGirls[6];
+extern char             g_History1[20];
+extern char             g_History2[20];
+
 
 // ---------------
 // *** DEFINES ***
@@ -329,11 +340,12 @@ extern u8          		g_Team2ActivePlayer;
 
 // +++ SEGMENT 0 +++
 void main();
-void WaitV9990Synch();
+void V9990_WaitSynch();
 void LoadMsxVdpFonts();
 void V9990_LoadImagePresentationData();
 void V9990_LoadMenuTeamsData();
 void V9990_LoadP1LayerA();
+void V9990_LoadP1LayerB();
 void V9_InterruptVBlank();
 void V9990_LoadSprites();
 void V9990_LoadButtonsImageData();
@@ -354,16 +366,28 @@ bool IsTeamJoystickTriggerPressed();
 
 // +++ SEGMENT 3 +++
 void PutPonPonGirlSprite(u8 ponPonGirlId);
-void InitializeMenuV9990Layers();
-void InitPalette();
+void V9990_InitMenuLayers();
+void V9990_InitPalette();
 void V9990_PrintLayerAStringAtPos(u8 x, u8 y, const c8* str);
 void SetPlayerBallPossession(u8 playerId);
+void InitPonPonGirls();
 
 // +++ SEGMENT 4 +++
 u8 SelectTeam(u8 cursorPatternId, u8 excludeIndex);
 void ShowMenu();
 void MenuSpriteBlinking();
 void ResetPlayersInfo();
-
+void ShowField();
+void GameStart();
+const u16* GetTeamPaletteById(u8 id);
+void SetTeam1Palette();
+void SetTeam2Palette();
+void SetTeamsPresentationSpritesPosition();
+void SetPlayerTarget(u8 playerId);
+void ResetBallInfo(bool resetPossessionPlayer);
+void ShowFieldZone(u8 zone);
+void ShowHeaderInfo();
+void PrintTeamName(u8 x, u8 teamPaletteId) ;
+char *GetNumberString(u16 value);
 // +++ SEGMENT 5 +++
 

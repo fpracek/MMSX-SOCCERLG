@@ -49,6 +49,16 @@ u8              g_Team2PaletteId;
 bool			g_ShowButtonsInfo;
 u8          	g_Team1ActivePlayer;
 u8          	g_Team2ActivePlayer;
+u8				g_SecondsToEndOfMatch;
+u8				g_Team1Score;
+u8				g_Team2Score;
+u8				g_RestartKickTeamId;
+u8				g_PassTargetPlayer;
+u8 				g_ponPonPatternIndex;
+PonPonGirlInfo  g_PonPonGirls[6];
+char            g_History1[20] = "PLY:      ";
+char            g_History2[20] = "CPU:      ";
+
 
 // -----------------
 // *** CONSTANTS ***
@@ -79,6 +89,12 @@ extern const unsigned char 	g_Data_PCM_InGoal_3[];							// Segment 48
 extern const unsigned char 	g_Data_PCM_ThrowIn[];							// Segment 49
 extern const unsigned char 	g_Data_PCM_GoalKick[];							// Segment 50
 extern const unsigned char  g_Data_PCM_TeamSelection[];						// Segment 51
+extern const unsigned char  g_Data_Field_LayerB_Part1[16384];				// Segment 52
+extern const unsigned char  g_Data_Field_LayerB_Part2[16384];				// Segment 53
+extern const unsigned char  g_Data_Field_LayerB_Part3[16384];				// Segment 54
+extern const unsigned char  g_Data_Field_LayerB_Part4[15360];				// Segment 55
+extern const unsigned char  g_Data_Field_LayerB_Part5[16384];				// Segment 56
+
 
 const struct MusicEntry g_MusicEntry[] =
 {
@@ -174,7 +190,7 @@ void PlayPcm(u8 id){
 void PlayVGM(u8 vgmId){
 	u8 currentSegment = GET_BANK_SEGMENT(1);
 	SET_BANK_SEGMENT(1, g_MusicEntry[vgmId].Segment);
-	VGM_Play(g_MusicEntry[vgmId].Data,TRUE);
+	VGM_Play((void*)g_MusicEntry[vgmId].Data,TRUE);
 	SET_BANK_SEGMENT(1, currentSegment);
 }
 
@@ -185,7 +201,7 @@ void PlayVGM(u8 vgmId){
 void LoadMsxVdpFonts() {
     u8 currentSegment = GET_BANK_SEGMENT(1);
     SET_BANK_SEGMENT(1, 30); 
-	Print_SetTextFont(g_Data_Fonts, 1);
+	Print_SetTextFont((const void*)g_Data_Fonts, 1);
     SET_BANK_SEGMENT(1, currentSegment);
 }
 
@@ -215,6 +231,22 @@ void V9990_LoadP1LayerA(){
 	V9_WriteVRAM(V9_P1_PGT_A + 8192L + 16384L, g_Data_LayerA_Menu_Teams_Part2, sizeof(g_Data_LayerA_Menu_Teams_Part2));
 	V9_FillVRAM16(V9_P1_PNT_A, 0x0000, 64*64); // Init layer A
 	SET_BANK_SEGMENT(1, currentSegment);
+}
+void V9990_LoadP1LayerB(){
+	u8 currentSegment = GET_BANK_SEGMENT(1);
+	V9_FillVRAM(V9_P1_PGT_B, 0x00, 128*212); 
+	SET_BANK_SEGMENT(1, 52); 
+	V9_WriteVRAM(V9_P1_PGT_B, g_Data_Field_LayerB_Part1, sizeof(g_Data_Field_LayerB_Part1)); 
+	SET_BANK_SEGMENT(1, 53); 
+	V9_WriteVRAM(V9_P1_PGT_B + 16384, g_Data_Field_LayerB_Part2, sizeof(g_Data_Field_LayerB_Part2)); 
+	SET_BANK_SEGMENT(1, 54); 
+	V9_WriteVRAM(V9_P1_PGT_B + 16384L*2, g_Data_Field_LayerB_Part3, sizeof(g_Data_Field_LayerB_Part3)); 
+	SET_BANK_SEGMENT(1, 55); 
+	V9_WriteVRAM(V9_P1_PGT_B + 16384L*3, g_Data_Field_LayerB_Part4, sizeof(g_Data_Field_LayerB_Part4)); 
+	SET_BANK_SEGMENT(1, 56); 
+	V9_WriteVRAM(V9_P1_PGT_B + 16384L*4, g_Data_Field_LayerB_Part5, sizeof(g_Data_Field_LayerB_Part5)); 
+	SET_BANK_SEGMENT(1, currentSegment);
+
 }
 // +++ Load image for presentation inside V9990 VRAM +++
 void V9990_LoadImagePresentationData(){
@@ -265,7 +297,7 @@ void V9990_PrintLayerAStringAtPos(u8 x, u8 y, const c8* str)
 		
 }
 // +++ Wait V9990 synch +++
-void WaitV9990Synch()
+void V9990_WaitSynch()
 {
 	while(!g_VSynch) {}
 	g_VSynch = FALSE;
@@ -274,7 +306,7 @@ void WaitV9990Synch()
 		g_FrameCounter=0;
 	}
 	if(g_MatchStatus==MATCH_SHOW_MENU){
-	       	u8 currentSegment = GET_BANK_SEGMENT(1);
+		    u8 currentSegment = GET_BANK_SEGMENT(1);
 			SET_BANK_SEGMENT(1, PSG_MENU_VGM_SEG);
 			VGM_Decode();
 			PSG_Apply();
@@ -293,8 +325,9 @@ void V9_InterruptVBlank(){
    
 	g_VSynch = TRUE;
 	if (g_FieldScrollingActionInProgress != NO_VALUE) {
-		SET_BANK_SEGMENT(1,2);
+		u8 currentSegment = GET_BANK_SEGMENT(1);
 		TickGameFieldScrolling();
+		SET_BANK_SEGMENT(1, currentSegment);
 	}
 	
 

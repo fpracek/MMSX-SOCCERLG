@@ -10,7 +10,6 @@ Symbol Table
     _DEBUG_INIT                                                     ******** GX
   7 _GetJoystickDirection                                           00000017 GR
   7 _InitVariables                                                  00000117 GR
-    _InitializeMenuV9990Layers                                      ******** GX
   7 _IsTeamJoystickTriggerPressed                                   00000000 GR
     _Joystick_Read                                                  ******** GX
     _Keyboard_IsKeyPressed                                          ******** GX
@@ -25,6 +24,7 @@ Symbol Table
   7 _TickGameFieldScrolling                                         000001B3 GR
     _Trampoline_VOID                                                ******** GX
     _Trampoline_VOID_P1                                             ******** GX
+    _V9990_InitMenuLayers                                           ******** GX
     _V9990_LoadImagePresentationData                                ******** GX
     _V9_Detect                                                      ******** GX
     _V9_GetRegister                                                 ******** GX

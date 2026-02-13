@@ -11,6 +11,18 @@
 #include "soccerlg.h"
 #include "debug.h"
 
+// -----------------
+// *** CONSTANTS ***
+// -----------------
+
+const u8 				g_GirlPatterns[] = {
+		SPRITE_GIRL_1, SPRITE_GIRL_2, SPRITE_GIRL_3,
+		SPRITE_GIRL_4, SPRITE_GIRL_5, SPRITE_GIRL_6,
+		SPRITE_GIRL_7, SPRITE_GIRL_8, SPRITE_GIRL_9
+
+};
+const u8 				g_PonPonGirlsPos[6]={30,50,70,175,195,215};
+
 // ---------------------
 // *** PALETTES DATA ***
 // ---------------------
@@ -59,20 +71,30 @@ const unsigned char g_Data_Palette_LayerB_Standard[] =
 // -----------------
 
 // +++ Init Palette +++
-void InitPalette(){
+void V9990_InitPalette(){
     V9_SetPalette(0, 16, g_Data_Palette_LayerA_Standard);
 	V9_SetPalette(16, 16, g_Data_Palette_LayerB_Standard);
 	V9_SelectPaletteP1(0,1);
 }
 // +++ Initialize V9990 Layers +++
-void InitializeMenuV9990Layers(){   
-    InitPalette();
+void V9990_InitMenuLayers(){   
+    V9990_InitPalette();
 	V9_SetScreenMode(V9_MODE_P1);
 	V9_SetBackgroundColor(1);
     V9_SetDisplayEnable(FALSE);
 	V9990_LoadP1LayerA();
 }
-
+void InitPonPonGirls(){
+	g_ponPonPatternIndex=0;
+	
+	for(u8 i=0;i<6;i++){
+		g_PonPonGirls[i].X=g_PonPonGirlsPos[i];
+		g_PonPonGirls[i].Y=42;
+		g_PonPonGirls[i].PatternId=SPRITE_GIRL_1;
+        PutPonPonGirlSprite(i);
+        
+	}
+}
 // +++ Set player ball possession +++
 void SetPlayerBallPossession(u8 playerId){
 	if (playerId == NO_VALUE) {

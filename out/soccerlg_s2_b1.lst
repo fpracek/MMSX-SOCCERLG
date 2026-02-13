@@ -11,7 +11,7 @@
                                      11 	.globl _VGM_Stop
                                      12 	.globl _DEBUG_INIT
                                      13 	.globl _ShowMenu
-                                     14 	.globl _InitializeMenuV9990Layers
+                                     14 	.globl _V9990_InitMenuLayers
                                      15 	.globl _PutPonPonGirlSprite
                                      16 	.globl _PlayVGM
                                      17 	.globl _Trampoline_VOID_P1
@@ -1161,8 +1161,8 @@
     00000352 CDr00r00         [17] 1161 	call	_V9_SetRegister
                                    1162 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:224: LoadPresentation();
     00000355 CDr36r01         [17] 1163 	call	_LoadPresentation
-                                   1164 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:225: Trampoline_VOID(3,InitializeMenuV9990Layers);
-    00000358 11r00r00         [10] 1165 	ld	de, #_InitializeMenuV9990Layers
+                                   1164 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:225: Trampoline_VOID(3,V9990_InitMenuLayers);
+    00000358 11r00r00         [10] 1165 	ld	de, #_V9990_InitMenuLayers
     0000035B 3E 03            [ 7] 1166 	ld	a, #0x03
     0000035D CDr00r00         [17] 1167 	call	_Trampoline_VOID
                                    1168 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:226: PlayVGM(VGM_MENU);
@@ -1174,13 +1174,13 @@
     00000369 CDr00r00         [17] 1174 	call	_Trampoline_VOID
                                    1175 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:228: VGM_Stop();
     0000036C CDr00r00         [17] 1176 	call	_VGM_Stop
-                                   1177 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:230: V9_SetPort(V9_P15, 0x10);	
+                                   1177 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:232: V9_SetPort(V9_P15, 0x10);	
     0000036F 2E 10            [ 7] 1178 	ld	l, #0x10
                                    1179 ;	spillPairReg hl
                                    1180 ;	spillPairReg hl
     00000371 3E 6F            [ 7] 1181 	ld	a, #0x6f
     00000373 CDr00r00         [17] 1182 	call	_V9_SetPort
-                                   1183 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:231: } 
+                                   1183 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:233: } 
     00000376 33               [ 6] 1184 	inc	sp
     00000377 DD E1            [14] 1185 	pop	ix
     00000379 C9               [10] 1186 	ret

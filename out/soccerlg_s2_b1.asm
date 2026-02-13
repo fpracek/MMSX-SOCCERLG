@@ -11,7 +11,7 @@
 	.globl _VGM_Stop
 	.globl _DEBUG_INIT
 	.globl _ShowMenu
-	.globl _InitializeMenuV9990Layers
+	.globl _V9990_InitMenuLayers
 	.globl _PutPonPonGirlSprite
 	.globl _PlayVGM
 	.globl _Trampoline_VOID_P1
@@ -1161,8 +1161,8 @@ _MainSub::
 	call	_V9_SetRegister
 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:224: LoadPresentation();
 	call	_LoadPresentation
-;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:225: Trampoline_VOID(3,InitializeMenuV9990Layers);
-	ld	de, #_InitializeMenuV9990Layers
+;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:225: Trampoline_VOID(3,V9990_InitMenuLayers);
+	ld	de, #_V9990_InitMenuLayers
 	ld	a, #0x03
 	call	_Trampoline_VOID
 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:226: PlayVGM(VGM_MENU);
@@ -1174,13 +1174,13 @@ _MainSub::
 	call	_Trampoline_VOID
 ;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:228: VGM_Stop();
 	call	_VGM_Stop
-;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:230: V9_SetPort(V9_P15, 0x10);	
+;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:232: V9_SetPort(V9_P15, 0x10);	
 	ld	l, #0x10
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, #0x6f
 	call	_V9_SetPort
-;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:231: } 
+;E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/soccerlg_s2_b1.c:233: } 
 	inc	sp
 	pop	ix
 	ret

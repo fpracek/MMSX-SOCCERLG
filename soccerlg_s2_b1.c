@@ -222,10 +222,12 @@ void MainSub(){
     V9_SetInterrupt(V9_INT_NONE);
 
 	LoadPresentation();
-	Trampoline_VOID(3,InitializeMenuV9990Layers);
+	Trampoline_VOID(3,V9990_InitMenuLayers);
 	PlayVGM(VGM_MENU);
 	Trampoline_VOID(4,ShowMenu);
 	VGM_Stop();
+
+	
 
 	V9_SetPort(V9_P15, 0x10);	
 } 
