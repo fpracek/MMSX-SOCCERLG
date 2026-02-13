@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "configurations": [
+      {
+          "type": "emulicious-debugger",
+          "request": "launch",
+          "name": "soccerlg (Emulicious)",
+          "program": "${workspaceFolder}/emul/rom/soccerlg.rom",
+          "preLaunchTask": "Build", 
+          "port": 58870,
+          "stopOnEntry": false
+      },
+      {
+        "name": "soccerlg (openMSX)",
+        "type": "node",           
+        "request": "launch",
+        "preLaunchTask": "prepareAndBuild",  
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "program": "false"
+      }
+    ]
+}

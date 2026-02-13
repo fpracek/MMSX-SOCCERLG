@@ -1,0 +1,46 @@
+-mjwx
+-i E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg.ihx
+-b _CODE = 0x4000
+-b _DATA = 0xc000
+-b_SEG2=0x00028000
+-b_SEG3=0x00038000
+-b_SEG4=0x00048000
+-b_SEG30=0x001E8000
+-b_SEG31=0x001F8000
+-b_SEG32=0x00208000
+-b_SEG33=0x00218000
+-b_SEG34=0x00228000
+-b_SEG35=0x00238000
+-b_SEG36=0x00248000
+-b_SEG37=0x00258000
+-b_SEG38=0x00268000
+-b_SEG39=0x00278000
+-b_SEG40=0x00288000
+-b_SEG41=0x00298000
+-b_SEG42=0x002A8000
+-b_SEG43=0x002B8000
+-k E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\tools/sdcc/lib/z80
+-k E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\tools/sdcc/bin\..\lib\z80
+-l E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/msxgl.lib
+-l z80
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/crt0_rom_mapper.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s2_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s3_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s4_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s30_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s31_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s32_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s33_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s34_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s35_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s36_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s37_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s38_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s39_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s40_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s41_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s42_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s43_b1.rel
+
+-e
