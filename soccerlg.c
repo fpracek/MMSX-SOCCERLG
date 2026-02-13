@@ -12,7 +12,7 @@
 #include "soccerlg.h"
 #include "debug.h"
 #include "input.h"
-#include "pt3/pt3_player.h"
+#include "pcm/pcmenc.h"
 #include "memory.h"
 #include "vgm/vgm_player.h"
 #include "psg.h"
@@ -71,10 +71,19 @@ extern const unsigned char  g_Data_Sprites_Part1[16384];					// Segment 40
 extern const unsigned char  g_Data_Sprites_Part2[16384];					// Segment 41
 extern const unsigned char  g_Data_Img_Buttons_Presentation_Part1[16384]; 	// Segment 42
 extern const unsigned char  g_Data_Img_Buttons_Presentation_Part2[16384]; 	// Segment 43
+extern const unsigned char  g_Data_PCM_CornerKick[];						// Segment 44
+extern const unsigned char  g_Data_PCM_KickOff[];							// Segment 45
+extern const unsigned char 	g_Data_PCM_InGoal_1[];							// Segment 46
+extern const unsigned char 	g_Data_PCM_InGoal_2[];							// Segment 47
+extern const unsigned char 	g_Data_PCM_InGoal_3[];							// Segment 48
+extern const unsigned char 	g_Data_PCM_ThrowIn[];							// Segment 49
+extern const unsigned char 	g_Data_PCM_GoalKick[];							// Segment 50
+extern const unsigned char  g_Data_PCM_TeamSelection[];						// Segment 51
 
 const struct MusicEntry g_MusicEntry[] =
 {
-	{ "Dragon Slayer 4    ", 0x8000 + PSG_MENU_VGM_REL,       PSG_MENU_VGM_SEG }
+	{ "Menu", 0x8000 + PSG_MENU_VGM_REL,       PSG_MENU_VGM_SEG },
+	{ "Match", 0x8000 + PSG_MATCH_VGM_REL,     PSG_MATCH_VGM_SEG }
 };
 
 // -----------------------------
@@ -103,6 +112,58 @@ u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)()) {
     _res = func();
     SET_BANK_SEGMENT(1, _old);
     return _res;
+}
+
+// -----------
+// *** PCM ***
+// -----------
+
+void PlayPcm(u8 id){
+	u8 currentSegment = GET_BANK_SEGMENT(1);
+	switch(id){
+		case PCM_CORNERKICK:
+			VGM_Pause();
+			SET_BANK_SEGMENT(1, 44);
+			PCM_Play_11K((u16)g_Data_PCM_CornerKick);
+			VGM_Resume();
+			break;
+		case PCM_KICKOFF:
+			SET_BANK_SEGMENT(1, 45);
+			PCM_Play_11K((u16)g_Data_PCM_KickOff);
+			PlayVGM(VGM_MATCH);
+			break;
+		case PCM_INGOAL:
+			VGM_Pause();
+			SET_BANK_SEGMENT(1, 46);
+			PCM_Play_11K((u16)g_Data_PCM_InGoal_1);
+			SET_BANK_SEGMENT(1, 47);
+			PCM_Play_11K((u16)g_Data_PCM_InGoal_2);
+			SET_BANK_SEGMENT(1, 48);
+			PCM_Play_11K((u16)g_Data_PCM_InGoal_3);
+			PCM_Play_11K((u16)g_Data_PCM_InGoal_3);
+			VGM_Resume();
+			break;
+		case PCM_THROWIN:
+			VGM_Pause();
+			SET_BANK_SEGMENT(2, 49);
+			PCM_Play_11K((u16)g_Data_PCM_ThrowIn);
+			VGM_Resume();
+			break;
+		case PCM_GOALKICK:
+			VGM_Pause();
+			SET_BANK_SEGMENT(1, 50);
+			PCM_Play_11K((u16)g_Data_PCM_GoalKick);
+			VGM_Resume();
+			break;
+		case PCM_TEAM_SELECTION:
+            VGM_Pause();
+			SET_BANK_SEGMENT(1, 51);
+			PCM_Play_11K((u16)g_Data_PCM_TeamSelection);
+            VGM_Resume();
+			break;	
+	}
+	SET_BANK_SEGMENT(1, currentSegment);
+	
 }
 
 // -----------

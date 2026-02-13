@@ -94,12 +94,12 @@ extern bool				g_ShowButtonsInfo;
 extern u8          		g_Team1ActivePlayer;
 extern u8          		g_Team2ActivePlayer;
 
-
 // ---------------
 // *** DEFINES ***
 // ---------------
 
 #define VGM_MENU                            0
+#define VGM_MATCH                           1
 
 #define SPRITE_BALL	11
 
@@ -114,6 +114,13 @@ extern u8          		g_Team2ActivePlayer;
 #define FIELD_BOUND_X_RIGHT                 236
 #define FIELD_BOUND_Y_TOP                   50
 #define FIELD_BOUND_Y_BOTTOM                430
+
+#define PCM_CORNERKICK						0
+#define PCM_KICKOFF							1
+#define PCM_INGOAL							2
+#define PCM_THROWIN							3
+#define PCM_GOALKICK						4
+#define PCM_TEAM_SELECTION					5
 
 #define GOAL_X_MIN                          96
 #define GOAL_X_MAX                          144
@@ -335,6 +342,7 @@ void Trampoline_VOID(u8 bank, void (*func)());
 void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1);
 u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)());
 void PlayVGM(u8 vgmId);
+void PlayPcm(u8 id);
 
 // +++ SEGMENT 2 +++
 void MainSub();

@@ -20,6 +20,14 @@
 -b_SEG41=0x00298000
 -b_SEG42=0x002A8000
 -b_SEG43=0x002B8000
+-b_SEG44=0x002C8000
+-b_SEG45=0x002D8000
+-b_SEG46=0x002E8000
+-b_SEG47=0x002F8000
+-b_SEG48=0x00308000
+-b_SEG49=0x00318000
+-b_SEG50=0x00328000
+-b_SEG51=0x00338000
 -k E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\tools/sdcc/lib/z80
 -k E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\tools/sdcc/bin\..\lib\z80
 -l E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/msxgl.lib
@@ -44,5 +52,13 @@ E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s40_b
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s41_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s42_b1.rel
 E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s43_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s44_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s45_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s46_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s47_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s48_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s49_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s50_b1.rel
+E:\Dropbox\FAUSTO\SVILUPPI\MSX\CODE\C\MSXgl\projects\soccerlg/out/soccerlg_s51_b1.rel
 
 -e

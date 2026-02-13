@@ -76,7 +76,7 @@ u8 SelectTeam(u8 cursorPatternId, u8 excludeIndex) {
         oldDir = dir;
 
         if (trigger && !oldTrigger) {
-			//PlayPcm(SOUND_TEAM_SELECTION);
+			//PlayPcm(PCM_TEAM_SELECTION);
 			return currentIdx;
         }
         oldTrigger = trigger;

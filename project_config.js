@@ -104,7 +104,8 @@ BankedCall = true;
 
 //-- List of raw data files to be added to final binary (array). Each entry must be in the following format: { offset:0x0000, file:"myfile.bin" }
 RawFiles = [
-    { segment: 50, file: "vgm/psg_menu.vgm"}
+    { segment: 60, file: "vgm/psg_menu.vgm"},
+    { segment: 61, file: "vgm/psg_match.vgm"}
 ];
 
 //-- Size of the final disk (.DSK file). Can be "360K" or "720K" (string)
