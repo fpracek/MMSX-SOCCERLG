@@ -77,6 +77,8 @@ u8 				g_PonPonGrilsPoseCounter=0;
 bool 			g_peopleState=FALSE;
 u8   			g_ponPonGirlsInitailized=FALSE;
 u8              g_SoundRequest=NO_VALUE;
+u16             g_ShotCursorX = 120;
+i8              g_ShotCursorDir = 2;
 
 // -----------------
 // *** CONSTANTS ***
@@ -146,8 +148,22 @@ void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1) {
     func(p1);
     SET_BANK_SEGMENT(1, _old);
 }
-// +++ Call void function without parameters with u8 returned value +++
-u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)()) {
+// +++ Call void function with 1 parameter +++
+void Trampoline_VOID_P2(u8 bank, void (*func)(u8, bool), u8 p1, bool p2) {
+    u8 _old = GET_BANK_SEGMENT(1);
+    SET_BANK_SEGMENT(1, bank);
+    func(p1,p2);
+    SET_BANK_SEGMENT(1, _old);
+}
+// +++ Call void function with 2 u16 parameters +++
+void Trampoline_VOID_16_P2(u8 bank, void (*func)(u16,u16), u16 p1, u16 p2) {
+    u8 _old = GET_BANK_SEGMENT(1);
+    SET_BANK_SEGMENT(1, bank);
+    func(p1,p2);
+    SET_BANK_SEGMENT(1, _old);
+}
+// +++ Call function without parameters with u8 returned value +++
+u8 Trampoline_U8(u8 bank, u8 (*func)()) {
     u8 _res;
     u8 _old = GET_BANK_SEGMENT(1);
     SET_BANK_SEGMENT(1, bank);
@@ -155,7 +171,33 @@ u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)()) {
     SET_BANK_SEGMENT(1, _old);
     return _res;
 }
-
+// +++ Call function with 2 parameters with u8 returned value +++
+u8 Trampoline_U8_P1(u8 bank, u8 (*func)(u8), u8 p1) {
+    u8 _res;
+    u8 _old = GET_BANK_SEGMENT(1);
+    SET_BANK_SEGMENT(1, bank);
+    _res = func(p1);
+    SET_BANK_SEGMENT(1, _old);
+    return _res;
+}
+// +++ Call function with 2 parameters with u8 returned value +++
+u8 Trampoline_U8_P2(u8 bank, u8 (*func)(u8, u8), u8 p1, u8 p2) {
+    u8 _res;
+    u8 _old = GET_BANK_SEGMENT(1);
+    SET_BANK_SEGMENT(1, bank);
+    _res = func(p1,p2);
+    SET_BANK_SEGMENT(1, _old);
+    return _res;
+}
+// +++ Call function with 1 u8 parameter and with bool returned value +++
+bool Trampoline_BOOL_P1(u8 bank, u8 (*func)(u8), u8 p1) {
+    bool _res;
+    u8 _old = GET_BANK_SEGMENT(1);
+    SET_BANK_SEGMENT(1, bank);
+    _res = func(p1);
+    SET_BANK_SEGMENT(1, _old);
+    return _res;
+}
 // -----------
 // *** PCM ***
 // -----------
@@ -390,6 +432,8 @@ __endasm;
 // -------------------------------
 // *** MISCELLANEUS FUNCTIONS ***
 // -------------------------------
+
+i32 Math_Abs32(i32 v) { return (v < 0) ? -v : v; }
 
 const TeamStats* GetTeamStats(u8 teamId) {
     if (teamId > 5) return &g_TeamStats[0];

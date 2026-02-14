@@ -8,6 +8,8 @@
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
+	.globl _Trampoline_U8_P1
+	.globl _Trampoline_VOID_P2
 	.globl _VGM_Decode
 	.globl _VGM_Pause
 	.globl _VGM_Resume
@@ -24,6 +26,8 @@
 	.globl _V9_SetWriteAddress
 	.globl _V9_SetRegister
 	.globl _Print_SetTextFont
+	.globl _g_ShotCursorDir
+	.globl _g_ShotCursorX
 	.globl _g_SoundRequest
 	.globl _g_ponPonGirlsInitailized
 	.globl _g_peopleState
@@ -273,7 +277,10 @@
 	.globl _g_RDPRIM
 	.globl _Trampoline_VOID
 	.globl _Trampoline_VOID_P1
-	.globl _Trampoline_VOID_RETURN
+	.globl _Trampoline_VOID_16_P2
+	.globl _Trampoline_U8
+	.globl _Trampoline_U8_P2
+	.globl _Trampoline_BOOL_P1
 	.globl _PlayPcm
 	.globl _PlayAyFx
 	.globl _PlayVGM
@@ -289,6 +296,7 @@
 	.globl _V9990_ClearTextFromLayerA
 	.globl _V9_InterruptVBlank
 	.globl _InterruptHook
+	.globl _Math_Abs32
 	.globl _GetTeamStats
 	.globl _main
 ;--------------------------------------------------------
@@ -462,6 +470,10 @@ _g_ponPonGirlsInitailized::
 	.ds 1
 _g_SoundRequest::
 	.ds 1
+_g_ShotCursorX::
+	.ds 2
+_g_ShotCursorDir::
+	.ds 1
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
@@ -482,13 +494,13 @@ _g_SoundRequest::
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;./soccerlg.c:136: void Trampoline_VOID(u8 bank, void (*func)()) {
+;./soccerlg.c:138: void Trampoline_VOID(u8 bank, void (*func)()) {
 ;	---------------------------------
 ; Function Trampoline_VOID
 ; ---------------------------------
 _Trampoline_VOID::
 	ld	b, a
-;./soccerlg.c:137: u8 _old = GET_BANK_SEGMENT(1);
+;./soccerlg.c:139: u8 _old = GET_BANK_SEGMENT(1);
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl,#(_g_Bank0Segment + 1)
 	ld	c,(hl)
@@ -496,7 +508,7 @@ _Trampoline_VOID::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), b
-;./soccerlg.c:139: func();
+;./soccerlg.c:141: func();
 	push	bc
 	ex	de, hl
 	call	___sdcc_call_hl
@@ -507,8 +519,8 @@ _Trampoline_VOID::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), c
-;./soccerlg.c:140: SET_BANK_SEGMENT(1, _old);
-;./soccerlg.c:141: }
+;./soccerlg.c:142: SET_BANK_SEGMENT(1, _old);
+;./soccerlg.c:143: }
 	ret
 _g_RDPRIM	=	0xf380
 _g_WRPRIM	=	0xf385
@@ -718,7 +730,7 @@ __str_0:
 __str_1:
 	.ascii "Match"
 	.db 0x00
-;./soccerlg.c:143: void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1) {
+;./soccerlg.c:145: void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1) {
 ;	---------------------------------
 ; Function Trampoline_VOID_P1
 ; ---------------------------------
@@ -727,7 +739,7 @@ _Trampoline_VOID_P1::
 	ld	ix,#0
 	add	ix,sp
 	ld	b, a
-;./soccerlg.c:144: u8 _old = GET_BANK_SEGMENT(1);
+;./soccerlg.c:146: u8 _old = GET_BANK_SEGMENT(1);
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl,#(_g_Bank0Segment + 1)
 	ld	c,(hl)
@@ -735,7 +747,7 @@ _Trampoline_VOID_P1::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), b
-;./soccerlg.c:146: func(p1);
+;./soccerlg.c:148: func(p1);
 	push	bc
 	ld	a, 4 (ix)
 	ex	de, hl
@@ -747,19 +759,22 @@ _Trampoline_VOID_P1::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), c
-;./soccerlg.c:147: SET_BANK_SEGMENT(1, _old);
-;./soccerlg.c:148: }
+;./soccerlg.c:149: SET_BANK_SEGMENT(1, _old);
+;./soccerlg.c:150: }
 	pop	ix
 	pop	hl
 	inc	sp
 	jp	(hl)
-;./soccerlg.c:150: u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)()) {
+;./soccerlg.c:152: void Trampoline_VOID_P2(u8 bank, void (*func)(u8, bool), u8 p1, bool p2) {
 ;	---------------------------------
-; Function Trampoline_VOID_RETURN
+; Function Trampoline_VOID_P2
 ; ---------------------------------
-_Trampoline_VOID_RETURN::
+_Trampoline_VOID_P2::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
 	ld	b, a
-;./soccerlg.c:152: u8 _old = GET_BANK_SEGMENT(1);
+;./soccerlg.c:153: u8 _old = GET_BANK_SEGMENT(1);
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl,#(_g_Bank0Segment + 1)
 	ld	c,(hl)
@@ -767,7 +782,94 @@ _Trampoline_VOID_RETURN::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), b
-;./soccerlg.c:154: _res = func();
+;./soccerlg.c:155: func(p1,p2);
+	push	bc
+	ld	l, 5 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, 4 (ix)
+	push	de
+	pop	iy
+	call	___sdcc_call_iy
+	pop	bc
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl, #(_g_Bank0Segment + 1)
+	ld	(hl), c
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), c
+;./soccerlg.c:156: SET_BANK_SEGMENT(1, _old);
+;./soccerlg.c:157: }
+	pop	ix
+	pop	hl
+	pop	af
+	jp	(hl)
+;./soccerlg.c:159: void Trampoline_VOID_16_P2(u8 bank, void (*func)(u16,u16), u16 p1, u16 p2) {
+;	---------------------------------
+; Function Trampoline_VOID_16_P2
+; ---------------------------------
+_Trampoline_VOID_16_P2::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	push	af
+	ld	-1 (ix), a
+	ld	c, e
+	ld	b, d
+;./soccerlg.c:160: u8 _old = GET_BANK_SEGMENT(1);
+	ld	a, (#(_g_Bank0Segment + 1) + 0)
+	ld	-2 (ix), a
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl, #(_g_Bank0Segment + 1)
+	ld	a, -1 (ix)
+	ld	(hl), a
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	a, -1 (ix)
+	ld	(hl), a
+;./soccerlg.c:162: func(p1,p2);
+	ld	e, 6 (ix)
+	ld	d, 7 (ix)
+	ld	l, 4 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, 5 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	push	bc
+	pop	iy
+	call	___sdcc_call_iy
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl, #(_g_Bank0Segment + 1)
+	ld	a, -2 (ix)
+	ld	(hl), a
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	a, -2 (ix)
+	ld	(hl), a
+;./soccerlg.c:163: SET_BANK_SEGMENT(1, _old);
+;./soccerlg.c:164: }
+	ld	sp, ix
+	pop	ix
+	pop	hl
+	pop	af
+	pop	af
+	jp	(hl)
+;./soccerlg.c:166: u8 Trampoline_U8(u8 bank, u8 (*func)()) {
+;	---------------------------------
+; Function Trampoline_U8
+; ---------------------------------
+_Trampoline_U8::
+	ld	b, a
+;./soccerlg.c:168: u8 _old = GET_BANK_SEGMENT(1);
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl,#(_g_Bank0Segment + 1)
+	ld	c,(hl)
+	ld	(hl), b
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), b
+;./soccerlg.c:170: _res = func();
 	push	bc
 	ex	de, hl
 	call	___sdcc_call_hl
@@ -778,10 +880,119 @@ _Trampoline_VOID_RETURN::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), c
-;./soccerlg.c:156: return _res;
-;./soccerlg.c:157: }
+;./soccerlg.c:172: return _res;
+;./soccerlg.c:173: }
 	ret
-;./soccerlg.c:163: void PlayPcm(u8 id){
+;./soccerlg.c:175: u8 Trampoline_U8_P1(u8 bank, u8 (*func)(u8), u8 p1) {
+;	---------------------------------
+; Function Trampoline_U8_P1
+; ---------------------------------
+_Trampoline_U8_P1::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	b, a
+;./soccerlg.c:177: u8 _old = GET_BANK_SEGMENT(1);
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl,#(_g_Bank0Segment + 1)
+	ld	c,(hl)
+	ld	(hl), b
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), b
+;./soccerlg.c:179: _res = func(p1);
+	push	bc
+	ld	a, 4 (ix)
+	ex	de, hl
+	call	___sdcc_call_hl
+	pop	bc
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl, #(_g_Bank0Segment + 1)
+	ld	(hl), c
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), c
+;./soccerlg.c:181: return _res;
+;./soccerlg.c:182: }
+	pop	ix
+	pop	hl
+	inc	sp
+	jp	(hl)
+;./soccerlg.c:184: u8 Trampoline_U8_P2(u8 bank, u8 (*func)(u8, u8), u8 p1, u8 p2) {
+;	---------------------------------
+; Function Trampoline_U8_P2
+; ---------------------------------
+_Trampoline_U8_P2::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	b, a
+;./soccerlg.c:186: u8 _old = GET_BANK_SEGMENT(1);
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl,#(_g_Bank0Segment + 1)
+	ld	c,(hl)
+	ld	(hl), b
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), b
+;./soccerlg.c:188: _res = func(p1,p2);
+	push	bc
+	ld	l, 5 (ix)
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	a, 4 (ix)
+	push	de
+	pop	iy
+	call	___sdcc_call_iy
+	pop	bc
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl, #(_g_Bank0Segment + 1)
+	ld	(hl), c
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), c
+;./soccerlg.c:190: return _res;
+;./soccerlg.c:191: }
+	pop	ix
+	pop	hl
+	pop	bc
+	jp	(hl)
+;./soccerlg.c:193: bool Trampoline_BOOL_P1(u8 bank, u8 (*func)(u8), u8 p1) {
+;	---------------------------------
+; Function Trampoline_BOOL_P1
+; ---------------------------------
+_Trampoline_BOOL_P1::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	b, a
+;./soccerlg.c:195: u8 _old = GET_BANK_SEGMENT(1);
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl,#(_g_Bank0Segment + 1)
+	ld	c,(hl)
+	ld	(hl), b
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), b
+;./soccerlg.c:197: _res = func(p1);
+	push	bc
+	ld	a, 4 (ix)
+	ex	de, hl
+	call	___sdcc_call_hl
+	pop	bc
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
+	ld	hl, #(_g_Bank0Segment + 1)
+	ld	(hl), c
+;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
+	ld	hl, #0x77ff
+	ld	(hl), c
+;./soccerlg.c:199: return _res;
+;./soccerlg.c:200: }
+	pop	ix
+	pop	hl
+	inc	sp
+	jp	(hl)
+;./soccerlg.c:205: void PlayPcm(u8 id){
 ;	---------------------------------
 ; Function PlayPcm
 ; ---------------------------------
@@ -791,10 +1002,10 @@ _PlayPcm::
 	add	ix,sp
 	dec	sp
 	ld	c, a
-;./soccerlg.c:164: u8 currentSegment = GET_BANK_SEGMENT(1);
+;./soccerlg.c:206: u8 currentSegment = GET_BANK_SEGMENT(1);
 	ld	a, (#(_g_Bank0Segment + 1) + 0)
 	ld	-1 (ix), a
-;./soccerlg.c:165: switch(id){
+;./soccerlg.c:207: switch(id){
 	ld	a, #0x05
 	sub	a, c
 	jp	C, 00107$
@@ -811,9 +1022,9 @@ _PlayPcm::
 	jp	00104$
 	jp	00105$
 	jp	00106$
-;./soccerlg.c:166: case PCM_CORNERKICK:
+;./soccerlg.c:208: case PCM_CORNERKICK:
 00101$:
-;./soccerlg.c:167: VGM_Pause();
+;./soccerlg.c:209: VGM_Pause();
 	call	_VGM_Pause
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -821,14 +1032,14 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x2c
-;./soccerlg.c:169: PCM_Play_11K((u16)g_Data_PCM_CornerKick);
+;./soccerlg.c:211: PCM_Play_11K((u16)g_Data_PCM_CornerKick);
 	ld	hl, #_g_Data_PCM_CornerKick
 	call	_PCM_Play_11K
-;./soccerlg.c:170: VGM_Resume();
+;./soccerlg.c:212: VGM_Resume();
 	call	_VGM_Resume
-;./soccerlg.c:171: break;
+;./soccerlg.c:213: break;
 	jp	00107$
-;./soccerlg.c:172: case PCM_KICKOFF:
+;./soccerlg.c:214: case PCM_KICKOFF:
 00102$:
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -836,17 +1047,17 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x2d
-;./soccerlg.c:174: PCM_Play_11K((u16)g_Data_PCM_KickOff);
+;./soccerlg.c:216: PCM_Play_11K((u16)g_Data_PCM_KickOff);
 	ld	hl, #_g_Data_PCM_KickOff
 	call	_PCM_Play_11K
-;./soccerlg.c:175: PlayVGM(VGM_MATCH);
+;./soccerlg.c:217: PlayVGM(VGM_MATCH);
 	ld	a, #0x01
 	call	_PlayVGM
-;./soccerlg.c:176: break;
+;./soccerlg.c:218: break;
 	jp	00107$
-;./soccerlg.c:177: case PCM_INGOAL:
+;./soccerlg.c:219: case PCM_INGOAL:
 00103$:
-;./soccerlg.c:178: VGM_Pause();
+;./soccerlg.c:220: VGM_Pause();
 	call	_VGM_Pause
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -854,7 +1065,7 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x2e
-;./soccerlg.c:180: PCM_Play_11K((u16)g_Data_PCM_InGoal_1);
+;./soccerlg.c:222: PCM_Play_11K((u16)g_Data_PCM_InGoal_1);
 	ld	hl, #_g_Data_PCM_InGoal_1
 	call	_PCM_Play_11K
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
@@ -863,7 +1074,7 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x2f
-;./soccerlg.c:182: PCM_Play_11K((u16)g_Data_PCM_InGoal_2);
+;./soccerlg.c:224: PCM_Play_11K((u16)g_Data_PCM_InGoal_2);
 	ld	hl, #_g_Data_PCM_InGoal_2
 	call	_PCM_Play_11K
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
@@ -872,33 +1083,33 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x30
-;./soccerlg.c:184: PCM_Play_11K((u16)g_Data_PCM_InGoal_3);
+;./soccerlg.c:226: PCM_Play_11K((u16)g_Data_PCM_InGoal_3);
 	ld	hl, #_g_Data_PCM_InGoal_3
 	call	_PCM_Play_11K
-;./soccerlg.c:185: PCM_Play_11K((u16)g_Data_PCM_InGoal_3);
+;./soccerlg.c:227: PCM_Play_11K((u16)g_Data_PCM_InGoal_3);
 	ld	hl, #_g_Data_PCM_InGoal_3
 	call	_PCM_Play_11K
-;./soccerlg.c:186: VGM_Resume();
+;./soccerlg.c:228: VGM_Resume();
 	call	_VGM_Resume
-;./soccerlg.c:187: break;
+;./soccerlg.c:229: break;
 	jp	00107$
-;./soccerlg.c:188: case PCM_THROWIN:
+;./soccerlg.c:230: case PCM_THROWIN:
 00104$:
-;./soccerlg.c:189: VGM_Pause();
+;./soccerlg.c:231: VGM_Pause();
 	call	_VGM_Pause
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 2)
 	ld	(hl), #0x31
-;./soccerlg.c:191: PCM_Play_11K((u16)g_Data_PCM_ThrowIn);
+;./soccerlg.c:233: PCM_Play_11K((u16)g_Data_PCM_ThrowIn);
 	ld	hl, #_g_Data_PCM_ThrowIn
 	call	_PCM_Play_11K
-;./soccerlg.c:192: VGM_Resume();
+;./soccerlg.c:234: VGM_Resume();
 	call	_VGM_Resume
-;./soccerlg.c:193: break;
+;./soccerlg.c:235: break;
 	jp	00107$
-;./soccerlg.c:194: case PCM_GOALKICK:
+;./soccerlg.c:236: case PCM_GOALKICK:
 00105$:
-;./soccerlg.c:195: VGM_Pause();
+;./soccerlg.c:237: VGM_Pause();
 	call	_VGM_Pause
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -906,16 +1117,16 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x32
-;./soccerlg.c:197: PCM_Play_11K((u16)g_Data_PCM_GoalKick);
+;./soccerlg.c:239: PCM_Play_11K((u16)g_Data_PCM_GoalKick);
 	ld	hl, #_g_Data_PCM_GoalKick
 	call	_PCM_Play_11K
-;./soccerlg.c:198: VGM_Resume();
+;./soccerlg.c:240: VGM_Resume();
 	call	_VGM_Resume
-;./soccerlg.c:199: break;
+;./soccerlg.c:241: break;
 	jp	00107$
-;./soccerlg.c:200: case PCM_TEAM_SELECTION:
+;./soccerlg.c:242: case PCM_TEAM_SELECTION:
 00106$:
-;./soccerlg.c:201: VGM_Pause();
+;./soccerlg.c:243: VGM_Pause();
 	call	_VGM_Pause
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -923,12 +1134,12 @@ _PlayPcm::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x33
-;./soccerlg.c:203: PCM_Play_11K((u16)g_Data_PCM_TeamSelection);
+;./soccerlg.c:245: PCM_Play_11K((u16)g_Data_PCM_TeamSelection);
 	ld	hl, #_g_Data_PCM_TeamSelection
 	call	_PCM_Play_11K
-;./soccerlg.c:204: VGM_Resume();
+;./soccerlg.c:246: VGM_Resume();
 	call	_VGM_Resume
-;./soccerlg.c:206: }
+;./soccerlg.c:248: }
 00107$:
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -938,28 +1149,28 @@ _PlayPcm::
 	ld	hl, #0x77ff
 	ld	a, -1 (ix)
 	ld	(hl), a
-;./soccerlg.c:207: SET_BANK_SEGMENT(1, currentSegment);
-;./soccerlg.c:209: }
+;./soccerlg.c:249: SET_BANK_SEGMENT(1, currentSegment);
+;./soccerlg.c:251: }
 	inc	sp
 	pop	ix
 	ret
-;./soccerlg.c:214: void PlayAyFx(u8 id){
+;./soccerlg.c:256: void PlayAyFx(u8 id){
 ;	---------------------------------
 ; Function PlayAyFx
 ; ---------------------------------
 _PlayAyFx::
-;./soccerlg.c:216: }
+;./soccerlg.c:258: }
 	ret
-;./soccerlg.c:223: void PlayVGM(u8 vgmId){
+;./soccerlg.c:265: void PlayVGM(u8 vgmId){
 ;	---------------------------------
 ; Function PlayVGM
 ; ---------------------------------
 _PlayVGM::
 	ld	e, a
-;./soccerlg.c:224: u8 currentSegment = GET_BANK_SEGMENT(1);
+;./soccerlg.c:266: u8 currentSegment = GET_BANK_SEGMENT(1);
 	ld	hl, #(_g_Bank0Segment + 1)
 	ld	c, (hl)
-;./soccerlg.c:225: SET_BANK_SEGMENT(1, g_MusicEntry[vgmId].Segment);
+;./soccerlg.c:267: SET_BANK_SEGMENT(1, g_MusicEntry[vgmId].Segment);
 	ld	d, #0x00
 	ld	l, e
 	ld	h, d
@@ -978,7 +1189,7 @@ _PlayVGM::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), a
-;./soccerlg.c:226: VGM_Play((void*)g_MusicEntry[vgmId].Data,TRUE);
+;./soccerlg.c:268: VGM_Play((void*)g_MusicEntry[vgmId].Data,TRUE);
 	ex	de, hl
 	inc	hl
 	inc	hl
@@ -998,15 +1209,15 @@ _PlayVGM::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), c
-;./soccerlg.c:227: SET_BANK_SEGMENT(1, currentSegment);
-;./soccerlg.c:228: }
+;./soccerlg.c:269: SET_BANK_SEGMENT(1, currentSegment);
+;./soccerlg.c:270: }
 	ret
-;./soccerlg.c:234: void LoadMsxVdpFonts() {
+;./soccerlg.c:276: void LoadMsxVdpFonts() {
 ;	---------------------------------
 ; Function LoadMsxVdpFonts
 ; ---------------------------------
 _LoadMsxVdpFonts::
-;./soccerlg.c:235: u8 currentSegment = GET_BANK_SEGMENT(1);
+;./soccerlg.c:277: u8 currentSegment = GET_BANK_SEGMENT(1);
 	ld	bc, #_g_Bank0Segment+1
 	ld	a, (bc)
 	ld	e, a
@@ -1016,7 +1227,7 @@ _LoadMsxVdpFonts::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x1e
-;./soccerlg.c:237: Print_SetTextFont((const void*)g_Data_Fonts, 1);
+;./soccerlg.c:279: Print_SetTextFont((const void*)g_Data_Fonts, 1);
 	push	bc
 	push	de
 	ld	a, #0x01
@@ -1032,10 +1243,10 @@ _LoadMsxVdpFonts::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), e
-;./soccerlg.c:238: SET_BANK_SEGMENT(1, currentSegment);
-;./soccerlg.c:239: }
+;./soccerlg.c:280: SET_BANK_SEGMENT(1, currentSegment);
+;./soccerlg.c:281: }
 	ret
-;./soccerlg.c:245: void V9990_LoadButtonsImageData(){
+;./soccerlg.c:287: void V9990_LoadButtonsImageData(){
 ;	---------------------------------
 ; Function V9990_LoadButtonsImageData
 ; ---------------------------------
@@ -1044,7 +1255,7 @@ _V9990_LoadButtonsImageData::
 	ld	ix,#0
 	add	ix,sp
 	push	af
-;./soccerlg.c:246: u8 currentSegment = GET_BANK_SEGMENT(1);
+;./soccerlg.c:288: u8 currentSegment = GET_BANK_SEGMENT(1);
 	ld	a, (#(_g_Bank0Segment + 1) + 0)
 	ld	-2 (ix), a
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: g_Bank0Segment[b] = s;
@@ -1053,7 +1264,7 @@ _V9990_LoadButtonsImageData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x2a
-;./soccerlg.c:248: V9_WriteVRAM(V9_P1_PGT_A, g_Data_Img_Buttons_Presentation_Part1, sizeof(g_Data_Img_Buttons_Presentation_Part1)); // Load tiles (part 1)
+;./soccerlg.c:290: V9_WriteVRAM(V9_P1_PGT_A, g_Data_Img_Buttons_Presentation_Part1, sizeof(g_Data_Img_Buttons_Presentation_Part1)); // Load tiles (part 1)
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: inline void V9_WriteVRAM(u32 addr, const u8* src, u16 count) { V9_SetWriteAddress(addr); V9_WriteVRAM_CurrentAddr(src, count); }
 	ld	de, #0x0000
 	ld	hl, #0x0000
@@ -1067,7 +1278,7 @@ _V9990_LoadButtonsImageData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x2b
-;./soccerlg.c:250: V9_WriteVRAM(V9_P1_PGT_A + 16384, g_Data_Img_Buttons_Presentation_Part2, sizeof(g_Data_Img_Buttons_Presentation_Part2)); // Load tiles (part 2)	
+;./soccerlg.c:292: V9_WriteVRAM(V9_P1_PGT_A + 16384, g_Data_Img_Buttons_Presentation_Part2, sizeof(g_Data_Img_Buttons_Presentation_Part2)); // Load tiles (part 2)	
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: inline void V9_WriteVRAM(u32 addr, const u8* src, u16 count) { V9_SetWriteAddress(addr); V9_WriteVRAM_CurrentAddr(src, count); }
 	ld	de, #0x4000
 	ld	hl, #0x0000
@@ -1081,7 +1292,7 @@ _V9990_LoadButtonsImageData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: inline void Poke(u16 addr, u8 val) { *(u8*)addr = val; }
 	ld	hl, #0x77ff
 	ld	(hl), #0x27
-;./soccerlg.c:252: V9_SetPalette(0, 16, g_Data_Palette_Buttons); 
+;./soccerlg.c:294: V9_SetPalette(0, 16, g_Data_Palette_Buttons); 
 	ld	bc, #_g_Data_Palette_Buttons+0
 ;./soccerlg.c:1028: ERROR: no line number 1028 in file ./soccerlg.c
 ;	spillPairReg hl
@@ -1108,7 +1319,7 @@ _V9990_LoadButtonsImageData::
 	inc	bc
 	inc	h
 	jp	00139$
-;./soccerlg.c:252: ERROR: no line number 252 in file ./soccerlg.c
+;./soccerlg.c:294: ERROR: no line number 294 in file ./soccerlg.c
 00129$:
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -1118,12 +1329,12 @@ _V9990_LoadButtonsImageData::
 	ld	hl, #0x77ff
 	ld	a, -2 (ix)
 	ld	(hl), a
-;./soccerlg.c:253: ERROR: no line number 253 in file ./soccerlg.c
-;./soccerlg.c:254: ERROR: no line number 254 in file ./soccerlg.c
+;./soccerlg.c:295: ERROR: no line number 295 in file ./soccerlg.c
+;./soccerlg.c:296: ERROR: no line number 296 in file ./soccerlg.c
 	ld	sp, ix
 	pop	ix
 	ret
-;./soccerlg.c:256: ERROR: no line number 256 in file ./soccerlg.c
+;./soccerlg.c:298: ERROR: no line number 298 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_LoadP1LayerA
 ; ---------------------------------
@@ -1132,7 +1343,7 @@ _V9990_LoadP1LayerA::
 	ld	ix,#0
 	add	ix,sp
 	dec	sp
-;./soccerlg.c:257: ERROR: no line number 257 in file ./soccerlg.c
+;./soccerlg.c:299: ERROR: no line number 299 in file ./soccerlg.c
 	ld	a, (#(_g_Bank0Segment + 1) + 0)
 	ld	-1 (ix), a
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:353: ERROR: no line number 353 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
@@ -1148,7 +1359,7 @@ _V9990_LoadP1LayerA::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x23
-;./soccerlg.c:260: ERROR: no line number 260 in file ./soccerlg.c
+;./soccerlg.c:302: ERROR: no line number 302 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x0000
 	ld	hl, #0x0000
@@ -1162,7 +1373,7 @@ _V9990_LoadP1LayerA::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x24
-;./soccerlg.c:262: ERROR: no line number 262 in file ./soccerlg.c
+;./soccerlg.c:304: ERROR: no line number 304 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x2000
 	ld	hl, #0x0000
@@ -1176,7 +1387,7 @@ _V9990_LoadP1LayerA::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x25
-;./soccerlg.c:264: ERROR: no line number 264 in file ./soccerlg.c
+;./soccerlg.c:306: ERROR: no line number 306 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x6000
 	ld	hl, #0x0000
@@ -1199,12 +1410,12 @@ _V9990_LoadP1LayerA::
 	ld	hl, #0x77ff
 	ld	a, -1 (ix)
 	ld	(hl), a
-;./soccerlg.c:266: ERROR: no line number 266 in file ./soccerlg.c
-;./soccerlg.c:267: ERROR: no line number 267 in file ./soccerlg.c
+;./soccerlg.c:308: ERROR: no line number 308 in file ./soccerlg.c
+;./soccerlg.c:309: ERROR: no line number 309 in file ./soccerlg.c
 	inc	sp
 	pop	ix
 	ret
-;./soccerlg.c:268: ERROR: no line number 268 in file ./soccerlg.c
+;./soccerlg.c:310: ERROR: no line number 310 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_LoadP1LayerB
 ; ---------------------------------
@@ -1213,7 +1424,7 @@ _V9990_LoadP1LayerB::
 	ld	ix,#0
 	add	ix,sp
 	dec	sp
-;./soccerlg.c:269: ERROR: no line number 269 in file ./soccerlg.c
+;./soccerlg.c:311: ERROR: no line number 311 in file ./soccerlg.c
 	ld	a, (#(_g_Bank0Segment + 1) + 0)
 	ld	-1 (ix), a
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:353: ERROR: no line number 353 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
@@ -1229,7 +1440,7 @@ _V9990_LoadP1LayerB::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x34
-;./soccerlg.c:272: ERROR: no line number 272 in file ./soccerlg.c
+;./soccerlg.c:314: ERROR: no line number 314 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x0000
 	ld	hl, #0x0004
@@ -1243,7 +1454,7 @@ _V9990_LoadP1LayerB::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x35
-;./soccerlg.c:274: ERROR: no line number 274 in file ./soccerlg.c
+;./soccerlg.c:316: ERROR: no line number 316 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x4000
 	ld	hl, #0x0004
@@ -1257,7 +1468,7 @@ _V9990_LoadP1LayerB::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x36
-;./soccerlg.c:276: ERROR: no line number 276 in file ./soccerlg.c
+;./soccerlg.c:318: ERROR: no line number 318 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x8000
 	ld	hl, #0x0004
@@ -1271,7 +1482,7 @@ _V9990_LoadP1LayerB::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x37
-;./soccerlg.c:278: ERROR: no line number 278 in file ./soccerlg.c
+;./soccerlg.c:320: ERROR: no line number 320 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0xc000
 	ld	hl, #0x0004
@@ -1285,7 +1496,7 @@ _V9990_LoadP1LayerB::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x38
-;./soccerlg.c:280: ERROR: no line number 280 in file ./soccerlg.c
+;./soccerlg.c:322: ERROR: no line number 322 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x0000
 	ld	hl, #0x0005
@@ -1301,17 +1512,17 @@ _V9990_LoadP1LayerB::
 	ld	hl, #0x77ff
 	ld	a, -1 (ix)
 	ld	(hl), a
-;./soccerlg.c:281: ERROR: no line number 281 in file ./soccerlg.c
-;./soccerlg.c:283: ERROR: no line number 283 in file ./soccerlg.c
+;./soccerlg.c:323: ERROR: no line number 323 in file ./soccerlg.c
+;./soccerlg.c:325: ERROR: no line number 325 in file ./soccerlg.c
 	inc	sp
 	pop	ix
 	ret
-;./soccerlg.c:285: ERROR: no line number 285 in file ./soccerlg.c
+;./soccerlg.c:327: ERROR: no line number 327 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_LoadImagePresentationData
 ; ---------------------------------
 _V9990_LoadImagePresentationData::
-;./soccerlg.c:286: ERROR: no line number 286 in file ./soccerlg.c
+;./soccerlg.c:328: ERROR: no line number 328 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
 	ld	hl,#(_g_Bank0Segment + 1)
 	ld	b,(hl)
@@ -1319,7 +1530,7 @@ _V9990_LoadImagePresentationData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x1f
-;./soccerlg.c:288: ERROR: no line number 288 in file ./soccerlg.c
+;./soccerlg.c:330: ERROR: no line number 330 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x0000
 	ld	hl, #0x0000
@@ -1335,7 +1546,7 @@ _V9990_LoadImagePresentationData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x20
-;./soccerlg.c:290: ERROR: no line number 290 in file ./soccerlg.c
+;./soccerlg.c:332: ERROR: no line number 332 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x4000
 	ld	hl, #0x0000
@@ -1351,7 +1562,7 @@ _V9990_LoadImagePresentationData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x21
-;./soccerlg.c:292: ERROR: no line number 292 in file ./soccerlg.c
+;./soccerlg.c:334: ERROR: no line number 334 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x8000
 	ld	hl, #0x0000
@@ -1367,7 +1578,7 @@ _V9990_LoadImagePresentationData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x22
-;./soccerlg.c:294: ERROR: no line number 294 in file ./soccerlg.c
+;./soccerlg.c:336: ERROR: no line number 336 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0xc000
 	ld	hl, #0x0000
@@ -1383,10 +1594,10 @@ _V9990_LoadImagePresentationData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), b
-;./soccerlg.c:295: ERROR: no line number 295 in file ./soccerlg.c
-;./soccerlg.c:296: ERROR: no line number 296 in file ./soccerlg.c
+;./soccerlg.c:337: ERROR: no line number 337 in file ./soccerlg.c
+;./soccerlg.c:338: ERROR: no line number 338 in file ./soccerlg.c
 	ret
-;./soccerlg.c:298: ERROR: no line number 298 in file ./soccerlg.c
+;./soccerlg.c:340: ERROR: no line number 340 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_LoadMenuTeamsData
 ; ---------------------------------
@@ -1397,7 +1608,7 @@ _V9990_LoadMenuTeamsData::
 	ld	hl, #-5
 	add	hl, sp
 	ld	sp, hl
-;./soccerlg.c:299: ERROR: no line number 299 in file ./soccerlg.c
+;./soccerlg.c:341: ERROR: no line number 341 in file ./soccerlg.c
 	ld	a, (#(_g_Bank0Segment + 1) + 0)
 	ld	-5 (ix), a
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
@@ -1406,7 +1617,7 @@ _V9990_LoadMenuTeamsData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x26
-;./soccerlg.c:301: ERROR: no line number 301 in file ./soccerlg.c
+;./soccerlg.c:343: ERROR: no line number 343 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x2000
 	ld	hl, #0x0004
@@ -1420,7 +1631,7 @@ _V9990_LoadMenuTeamsData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x27
-;./soccerlg.c:303: ERROR: no line number 303 in file ./soccerlg.c
+;./soccerlg.c:345: ERROR: no line number 345 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x6000
 	ld	hl, #0x0004
@@ -1435,7 +1646,7 @@ _V9990_LoadMenuTeamsData::
 	ld	de, #0x1000
 	ld	hl, #0x0000
 	call	_V9_FillVRAM16_CurrentAddr
-;./soccerlg.c:305: ERROR: no line number 305 in file ./soccerlg.c
+;./soccerlg.c:347: ERROR: no line number 347 in file ./soccerlg.c
 	ld	-4 (ix), #<(_g_Data_Palette_Gray_Scale)
 	ld	-3 (ix), #>(_g_Data_Palette_Gray_Scale)
 ;./soccerlg.c:1028: ERROR: no line number 1028 in file ./soccerlg.c
@@ -1459,7 +1670,7 @@ _V9990_LoadMenuTeamsData::
 00179$:
 	inc	-1 (ix)
 	jp	00142$
-;./soccerlg.c:305: ERROR: no line number 305 in file ./soccerlg.c
+;./soccerlg.c:347: ERROR: no line number 347 in file ./soccerlg.c
 00122$:
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -1467,7 +1678,7 @@ _V9990_LoadMenuTeamsData::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x25
-;./soccerlg.c:307: ERROR: no line number 307 in file ./soccerlg.c
+;./soccerlg.c:349: ERROR: no line number 349 in file ./soccerlg.c
 	ld	bc, #_g_Data_Palette_Teams_Colors+0
 ;./soccerlg.c:1028: ERROR: no line number 1028 in file ./soccerlg.c
 ;	spillPairReg hl
@@ -1494,7 +1705,7 @@ _V9990_LoadMenuTeamsData::
 	inc	bc
 	inc	h
 	jp	00145$
-;./soccerlg.c:307: ERROR: no line number 307 in file ./soccerlg.c
+;./soccerlg.c:349: ERROR: no line number 349 in file ./soccerlg.c
 00132$:
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
 	ld	hl, #(_g_Bank0Segment + 1)
@@ -1504,17 +1715,17 @@ _V9990_LoadMenuTeamsData::
 	ld	hl, #0x77ff
 	ld	a, -5 (ix)
 	ld	(hl), a
-;./soccerlg.c:308: ERROR: no line number 308 in file ./soccerlg.c
-;./soccerlg.c:309: ERROR: no line number 309 in file ./soccerlg.c
+;./soccerlg.c:350: ERROR: no line number 350 in file ./soccerlg.c
+;./soccerlg.c:351: ERROR: no line number 351 in file ./soccerlg.c
 	ld	sp, ix
 	pop	ix
 	ret
-;./soccerlg.c:311: ERROR: no line number 311 in file ./soccerlg.c
+;./soccerlg.c:353: ERROR: no line number 353 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_LoadSprites
 ; ---------------------------------
 _V9990_LoadSprites::
-;./soccerlg.c:312: ERROR: no line number 312 in file ./soccerlg.c
+;./soccerlg.c:354: ERROR: no line number 354 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
 	ld	hl,#(_g_Bank0Segment + 1)
 	ld	b,(hl)
@@ -1528,7 +1739,7 @@ _V9990_LoadSprites::
 ;	spillPairReg hl
 	ld	a, #0x19
 	call	_V9_SetRegister
-;./soccerlg.c:315: ERROR: no line number 315 in file ./soccerlg.c
+;./soccerlg.c:357: ERROR: no line number 357 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0x8000
 	ld	hl, #0x0000
@@ -1544,7 +1755,7 @@ _V9990_LoadSprites::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x29
-;./soccerlg.c:317: ERROR: no line number 317 in file ./soccerlg.c
+;./soccerlg.c:359: ERROR: no line number 359 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h:371: ERROR: no line number 371 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/v9990.h
 	ld	de, #0xc000
 	ld	hl, #0x0000
@@ -1560,10 +1771,10 @@ _V9990_LoadSprites::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), b
-;./soccerlg.c:318: ERROR: no line number 318 in file ./soccerlg.c
-;./soccerlg.c:320: ERROR: no line number 320 in file ./soccerlg.c
+;./soccerlg.c:360: ERROR: no line number 360 in file ./soccerlg.c
+;./soccerlg.c:362: ERROR: no line number 362 in file ./soccerlg.c
 	ret
-;./soccerlg.c:322: ERROR: no line number 322 in file ./soccerlg.c
+;./soccerlg.c:364: ERROR: no line number 364 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_PrintLayerAStringAtPos
 ; ---------------------------------
@@ -1575,14 +1786,14 @@ _V9990_PrintLayerAStringAtPos::
 	push	af
 	ld	-1 (ix), a
 	ld	-2 (ix), l
-;./soccerlg.c:325: ERROR: no line number 325 in file ./soccerlg.c
+;./soccerlg.c:367: ERROR: no line number 367 in file ./soccerlg.c
 	ld	e, 4 (ix)
 	ld	d, 5 (ix)
 00101$:
 	ld	a, (de)
 	or	a, a
 	jr	Z, 00106$
-;./soccerlg.c:326: ERROR: no line number 326 in file ./soccerlg.c
+;./soccerlg.c:368: ERROR: no line number 368 in file ./soccerlg.c
 	inc	de
 	ld	-4 (ix), a
 	ld	-3 (ix), #0x00
@@ -1633,45 +1844,45 @@ _V9990_PrintLayerAStringAtPos::
 	pop	hl
 	push	hl
 	call	_V9_Poke16_CurrentAddr
-;./soccerlg.c:327: ERROR: no line number 327 in file ./soccerlg.c
+;./soccerlg.c:369: ERROR: no line number 369 in file ./soccerlg.c
 	inc	-1 (ix)
-;./soccerlg.c:328: ERROR: no line number 328 in file ./soccerlg.c
+;./soccerlg.c:370: ERROR: no line number 370 in file ./soccerlg.c
 	jp	00101$
 00106$:
-;./soccerlg.c:331: ERROR: no line number 331 in file ./soccerlg.c
+;./soccerlg.c:373: ERROR: no line number 373 in file ./soccerlg.c
 	ld	sp, ix
 	pop	ix
 	pop	hl
 	pop	af
 	jp	(hl)
-;./soccerlg.c:333: ERROR: no line number 333 in file ./soccerlg.c
+;./soccerlg.c:375: ERROR: no line number 375 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_WaitSynch
 ; ---------------------------------
 _V9990_WaitSynch::
-;./soccerlg.c:335: ERROR: no line number 335 in file ./soccerlg.c
+;./soccerlg.c:377: ERROR: no line number 377 in file ./soccerlg.c
 00101$:
 	ld	a, (_g_VSynch+0)
 	or	a, a
 	jr	Z, 00101$
-;./soccerlg.c:336: ERROR: no line number 336 in file ./soccerlg.c
+;./soccerlg.c:378: ERROR: no line number 378 in file ./soccerlg.c
 	ld	hl, #_g_VSynch
 	ld	(hl), #0x00
-;./soccerlg.c:337: ERROR: no line number 337 in file ./soccerlg.c
+;./soccerlg.c:379: ERROR: no line number 379 in file ./soccerlg.c
 	ld	iy, #_g_FrameCounter
 	inc	0 (iy)
-;./soccerlg.c:338: ERROR: no line number 338 in file ./soccerlg.c
+;./soccerlg.c:380: ERROR: no line number 380 in file ./soccerlg.c
 	ld	a, (_g_FrameCounter+0)
 	sub	a, #0x3c
 	jr	NZ, 00105$
-;./soccerlg.c:339: ERROR: no line number 339 in file ./soccerlg.c
+;./soccerlg.c:381: ERROR: no line number 381 in file ./soccerlg.c
 	ld	0 (iy), #0x00
 00105$:
-;./soccerlg.c:341: ERROR: no line number 341 in file ./soccerlg.c
+;./soccerlg.c:383: ERROR: no line number 383 in file ./soccerlg.c
 	ld	a, (_g_MatchStatus+0)
 	sub	a, #0x13
 	ret	NZ
-;./soccerlg.c:342: ERROR: no line number 342 in file ./soccerlg.c
+;./soccerlg.c:384: ERROR: no line number 384 in file ./soccerlg.c
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h:250: ERROR: no line number 250 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/rom_mapper.h
 	ld	hl,#(_g_Bank0Segment + 1)
 	ld	c,(hl)
@@ -1679,7 +1890,7 @@ _V9990_WaitSynch::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), #0x3c
-;./soccerlg.c:344: ERROR: no line number 344 in file ./soccerlg.c
+;./soccerlg.c:386: ERROR: no line number 386 in file ./soccerlg.c
 	push	bc
 	call	_VGM_Decode
 	call	_PSG_Apply
@@ -1690,10 +1901,10 @@ _V9990_WaitSynch::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h:101: ERROR: no line number 101 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/system.h
 	ld	hl, #0x77ff
 	ld	(hl), c
-;./soccerlg.c:347: ERROR: no line number 347 in file ./soccerlg.c
-;./soccerlg.c:349: ERROR: no line number 349 in file ./soccerlg.c
+;./soccerlg.c:389: ERROR: no line number 389 in file ./soccerlg.c
+;./soccerlg.c:391: ERROR: no line number 391 in file ./soccerlg.c
 	ret
-;./soccerlg.c:351: ERROR: no line number 351 in file ./soccerlg.c
+;./soccerlg.c:393: ERROR: no line number 393 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9990_ClearTextFromLayerA
 ; ---------------------------------
@@ -1704,7 +1915,7 @@ _V9990_ClearTextFromLayerA::
 	push	af
 	ld	c, a
 	ld	-2 (ix), l
-;./soccerlg.c:352: ERROR: no line number 352 in file ./soccerlg.c
+;./soccerlg.c:394: ERROR: no line number 394 in file ./soccerlg.c
 	ld	-1 (ix), #0x00
 00105$:
 	ld	a, -1 (ix)
@@ -1750,72 +1961,95 @@ _V9990_ClearTextFromLayerA::
 	pop	bc
 	ld	hl, #0x0000
 	call	_V9_Poke16_CurrentAddr
-;./soccerlg.c:354: ERROR: no line number 354 in file ./soccerlg.c
 	inc	c
-;./soccerlg.c:352: ERROR: no line number 352 in file ./soccerlg.c
+;./soccerlg.c:394: ERROR: no line number 394 in file ./soccerlg.c
 	inc	-1 (ix)
 	jp	00105$
 00107$:
-;./soccerlg.c:356: ERROR: no line number 356 in file ./soccerlg.c
+;./soccerlg.c:398: ERROR: no line number 398 in file ./soccerlg.c
 	ld	sp, ix
 	pop	ix
 	pop	hl
 	inc	sp
 	jp	(hl)
-;./soccerlg.c:358: ERROR: no line number 358 in file ./soccerlg.c
+;./soccerlg.c:400: ERROR: no line number 400 in file ./soccerlg.c
 ;	---------------------------------
 ; Function V9_InterruptVBlank
 ; ---------------------------------
 _V9_InterruptVBlank::
-;./soccerlg.c:360: ERROR: no line number 360 in file ./soccerlg.c
+;./soccerlg.c:402: ERROR: no line number 402 in file ./soccerlg.c
 	ld	a, (_g_MatchStatus+0)
 	sub	a, #0x0f
 	jr	NZ, 00102$
-;./soccerlg.c:361: ERROR: no line number 361 in file ./soccerlg.c
+;./soccerlg.c:403: ERROR: no line number 403 in file ./soccerlg.c
 	ld	hl, #_g_Timer
 	inc	(hl)
-;./soccerlg.c:362: ERROR: no line number 362 in file ./soccerlg.c
+;./soccerlg.c:404: ERROR: no line number 404 in file ./soccerlg.c
 	ret
 00102$:
-;./soccerlg.c:366: ERROR: no line number 366 in file ./soccerlg.c
+;./soccerlg.c:408: ERROR: no line number 408 in file ./soccerlg.c
 	ld	iy, #_g_VSynch
 	ld	0 (iy), #0x01
-;./soccerlg.c:367: ERROR: no line number 367 in file ./soccerlg.c
+;./soccerlg.c:409: ERROR: no line number 409 in file ./soccerlg.c
 	ld	a, (_g_FieldScrollingActionInProgress+0)
 	inc	a
 	ret	Z
-;./soccerlg.c:368: ERROR: no line number 368 in file ./soccerlg.c
+;./soccerlg.c:410: ERROR: no line number 410 in file ./soccerlg.c
 	ld	de, #_TickGameFieldScrolling
 	ld	a, #0x02
-;./soccerlg.c:373: ERROR: no line number 373 in file ./soccerlg.c
+;./soccerlg.c:415: ERROR: no line number 415 in file ./soccerlg.c
 	jp	_Trampoline_VOID
-;./soccerlg.c:375: ERROR: no line number 375 in file ./soccerlg.c
+;./soccerlg.c:417: ERROR: no line number 417 in file ./soccerlg.c
 ;	---------------------------------
 ; Function InterruptHook
 ; ---------------------------------
 _InterruptHook::
-;./soccerlg.c:387: ERROR: no line number 387 in file ./soccerlg.c
+;./soccerlg.c:429: ERROR: no line number 429 in file ./soccerlg.c
 	in	a, (0x99)
 	in	a, (0x66)
 	out	(0x66), a
 	rra
 	call	c, _V9_InterruptVBlank
-;./soccerlg.c:388: ERROR: no line number 388 in file ./soccerlg.c
+;./soccerlg.c:430: ERROR: no line number 430 in file ./soccerlg.c
 	ret
-;./soccerlg.c:394: ERROR: no line number 394 in file ./soccerlg.c
+;./soccerlg.c:436: ERROR: no line number 436 in file ./soccerlg.c
+;	---------------------------------
+; Function Math_Abs32
+; ---------------------------------
+_Math_Abs32::
+	ld	c, l
+	ld	b, h
+	bit	7, b
+	jr	Z, 00103$
+	ld	hl, #0x0000
+	cp	a, a
+	sbc	hl, de
+	ex	de, hl
+	ld	hl, #0x0000
+	sbc	hl, bc
+	ret
+00103$:
+	ld	l, c
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, b
+;	spillPairReg hl
+;	spillPairReg hl
+	ret
+;./soccerlg.c:438: ERROR: no line number 438 in file ./soccerlg.c
 ;	---------------------------------
 ; Function GetTeamStats
 ; ---------------------------------
 _GetTeamStats::
 	ld	c, a
-;./soccerlg.c:395: ERROR: no line number 395 in file ./soccerlg.c
+;./soccerlg.c:439: ERROR: no line number 439 in file ./soccerlg.c
 	ld	a, #0x05
 	sub	a, c
 	jr	NC, 00102$
 	ld	de, #_g_TeamStats
 	ret
 00102$:
-;./soccerlg.c:396: ERROR: no line number 396 in file ./soccerlg.c
+;./soccerlg.c:440: ERROR: no line number 440 in file ./soccerlg.c
 	ld	b, #0x00
 	ld	l, c
 	ld	h, b
@@ -1825,14 +2059,14 @@ _GetTeamStats::
 	ld	de, #_g_TeamStats
 	add	hl, de
 	ex	de, hl
-;./soccerlg.c:397: ERROR: no line number 397 in file ./soccerlg.c
+;./soccerlg.c:441: ERROR: no line number 441 in file ./soccerlg.c
 	ret
-;./soccerlg.c:402: ERROR: no line number 402 in file ./soccerlg.c
+;./soccerlg.c:446: ERROR: no line number 446 in file ./soccerlg.c
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
-;./soccerlg.c:403: ERROR: no line number 403 in file ./soccerlg.c
+;./soccerlg.c:447: ERROR: no line number 447 in file ./soccerlg.c
 	ld	bc, #_InterruptHook
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/bios_hook.h:37: ERROR: no line number 37 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/bios_hook.h
 	ld	hl, #0xfd9a
@@ -1842,10 +2076,10 @@ _main::
 ;E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/bios_hook.h:62: ERROR: no line number 62 in file E:/Dropbox/FAUSTO/SVILUPPI/MSX/CODE/C/MSXgl/engine/src/bios_hook.h
 	ld	l, #0x9f
 	ld	(hl), #0xc9
-;./soccerlg.c:405: ERROR: no line number 405 in file ./soccerlg.c
+;./soccerlg.c:449: ERROR: no line number 449 in file ./soccerlg.c
 	ld	de, #_MainSub
 	ld	a, #0x02
-;./soccerlg.c:406: ERROR: no line number 406 in file ./soccerlg.c
+;./soccerlg.c:450: ERROR: no line number 450 in file ./soccerlg.c
 	jp	_Trampoline_VOID
 	.area _CODE
 	.area _INITIALIZER
@@ -1911,4 +2145,8 @@ __xinit__g_ponPonGirlsInitailized:
 	.db #0x00	; 0
 __xinit__g_SoundRequest:
 	.db #0xff	; 255
+__xinit__g_ShotCursorX:
+	.dw #0x0078
+__xinit__g_ShotCursorDir:
+	.db #0x02	;  2
 	.area _CABS (ABS)

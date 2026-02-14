@@ -247,26 +247,21 @@ void MainGameLoop(){
 				Trampoline_VOID_P1(4,SetPlayerTarget,i);
 			}
 		}
-		
         TickCornerKick(); 
-		
         if(g_MatchStatus == MATCH_BEFORE_GOAL_KICK){
             TickGoalKick();
         }
-        
         TickThrowIn();
-		
+
         Trampoline_VOID(3,TickPonPonGirlsAnimation);
-		Trampoline_VOID(3,TickPlayerToOwnTarget);
-		
+
+		TickPlayerToOwnTarget();
         
         if (g_SoundRequest != NO_VALUE) {
             PlayPcm(g_SoundRequest);
             g_SoundRequest = NO_VALUE;
         }
-		
 		Trampoline_VOID(3,TickGoalCelebration);
-		/*
 		TickActiveFieldZone();
 		if(g_FieldScrollingActionInProgress==NO_VALUE){
             // AI runs during ACTION and GK_BALL
@@ -274,10 +269,8 @@ void MainGameLoop(){
                 // Referee AI
                 if(AiTickSpeed >= 2){ // Speed up AI cycle (was 5)
 					AiTickSpeed=0;
-                    SET_BANK_SEGMENT(2,22);
-					TickAI(REFEREE);
-					TickAI(TickAiPlayerId);
-                    SET_BANK_SEGMENT(2,1);
+                    Trampoline_VOID_P1(5,TickAI,REFEREE);
+					Trampoline_VOID_P1(5,TickAI,TickAiPlayerId);
 					TickAiPlayerId++;
 					if(TickAiPlayerId==14){ // Only iterate 0-13 (Players)
 						TickAiPlayerId=0;
@@ -287,35 +280,28 @@ void MainGameLoop(){
 					if (g_Ball.PossessionPlayerId != NO_VALUE && g_Ball.PossessionPlayerId < 14) {
 						// Don't run twice if we just ran it in the loop
 						if (g_Ball.PossessionPlayerId != TickAiPlayerId) {
-                            SET_BANK_SEGMENT(2,22);
-							TickAI(g_Ball.PossessionPlayerId);
-                            SET_BANK_SEGMENT(2,1);
+							Trampoline_VOID_P1(5,TickAI,g_Ball.PossessionPlayerId);
 						}
 					}
 				}
 				
             }
 		}
-		
 		EnforcePenaltyBoxRestriction();
-
-		UpdateSpritesPositions();
+		Trampoline_VOID(3,UpdateSpritesPositions);
 		TickShotCursor();
-		TickUpdateTime();
+		Trampoline_VOID(4,TickUpdateTime);
 		TickShowKickOff();
 		if(g_FieldScrollingActionInProgress==NO_VALUE){
-			TickBallCollision();
-			TickBallFlying();
-			UpdatePassTarget();
-            TickGoalkeeperAnimation();
+			Trampoline_VOID(4,TickBallCollision);
+			Trampoline_VOID(4,TickBallFlying);
+			Trampoline_VOID(4,UpdatePassTarget);
+            Trampoline_VOID(4,TickGoalkeeperAnimation);
 		}
-		
-		TickCheckBallBoundaries();
-		TickTeamJoystick(TEAM_1,GetJoystick1Direction());
-		if(g_GameWith2Players){
-			TickTeamJoystick(TEAM_2,GetJoystick2Direction());
-		}
-		
+		Trampoline_VOID(4,TickCheckBallBoundaries);
+		u8 joyDir=Trampoline_U8(2,GetJoystickDirection);
+		Trampoline_VOID_P1(3,TickTeamJoystick,joyDir);
+	
 		AiTickSpeed++;
 		// Decrement Cooldown
 		if (g_ActionCooldown > 0) {
@@ -331,10 +317,126 @@ void MainGameLoop(){
 		if (g_ShootCooldown > 0) {
 			g_ShootCooldown--;
 		}
-		*/
 	}
 }
+// +++ Kick off +++
+void TickShowKickOff(){
+	if(g_MatchStatus==MATCH_KICK_OFF){
+		if(g_Timer==1){
+			V9990_PrintLayerAStringAtPos(12,18,"KICK OFF");
+            g_PmcSoundPlaying=PCM_KICKOFF;
+            g_PcmStartPlaying=TRUE;
+			g_Timer=2;
+		}
+		if(g_Timer==3){
+            g_PmcSoundPlaying=NO_VALUE;
+			V9990_ClearTextFromLayerA(12,18,9);
+			g_Timer=NO_VALUE;
+			u8 playerId=NO_VALUE;
+			if(g_RestartKickTeamId==TEAM_1){
+				playerId=GetPlayerIdByRole(TEAM_1,PLAYER_ROLE_RIGHT_HALFFIELDER);
+			}
+			else{
+				playerId=GetPlayerIdByRole(TEAM_2,PLAYER_ROLE_LEFT_HALFFIELDER);
+			}
+			PutBallOnPlayerFeet(playerId);
+			g_MatchStatus=MATCH_IN_ACTION;
+		}
+	}
+    if(g_MatchStatus==MATCH_BEFORE_OFFSIDE){
+         if(g_Timer >= 2) { 
+             V9990_ClearTextFromLayerA(10,18,7);
+             g_Timer = NO_VALUE;
+             
+             u8 team = g_RestartKickTeamId; 
+             u8 newOwner = GetClosestPlayerToBall(team, NO_VALUE);
+             if (newOwner != NO_VALUE) {
+                 PutBallOnPlayerFeet(newOwner);
+                 g_Ball.KickMoveState = NO_VALUE;
+             }
+             
+             g_MatchStatus = MATCH_IN_ACTION;
+         }
+    }
+}
+// +++ Tick shot arrow +++
+void TickShotCursor() {
+    // 1. Update Position
+    g_ShotCursorX += g_ShotCursorDir;
+    if (g_ShotCursorX < (GOAL_X_MIN - 30)) {
+        g_ShotCursorX = (GOAL_X_MIN - 30);
+        g_ShotCursorDir = -g_ShotCursorDir;
+    }
+    if (g_ShotCursorX > (GOAL_X_MAX + 30)) {
+        g_ShotCursorX = (GOAL_X_MAX + 30);
+        g_ShotCursorDir = -g_ShotCursorDir;
+    }
 
+    // 2. Draw Sprite
+    bool show = false;
+    if (g_MatchStatus == MATCH_IN_ACTION && g_ActiveFieldZone == FIELD_NORTH_ZONE) {
+        if (g_Ball.PossessionPlayerId != NO_VALUE) {
+            if (g_Players[g_Ball.PossessionPlayerId].TeamId == TEAM_1) {
+                show = true;
+            }
+        }
+    }
+
+    struct V9_Sprite attr;
+    if (show) {
+        // Calculate Screen Y
+        int screenY = (FIELD_BOUND_Y_TOP - 30) - g_FieldCurrentYPosition;
+        
+        // Hide if scrolled off
+        if (screenY < -16 || screenY > 212) {
+             attr.Y = 216; 
+        } else {
+             attr.Y = (u8)screenY;
+        }
+        
+        attr.X = (u8)g_ShotCursorX;
+        attr.Pattern = SPRITE_DOWN_ARROW;
+        attr.P = 1; 
+        attr.SC = 0; 
+        
+        V9_SetSpriteP1(16, &attr);
+    } else {
+        // Hide
+        attr.Y = 216;
+        V9_SetSpriteP1(16, &attr);
+    }
+}
+// *** Enforce penalty box restriction ***
+void EnforcePenaltyBoxRestriction() {
+    if (g_MatchStatus != MATCH_BALL_ON_GOALKEEPER) {
+        return;
+    }
+
+    u8 gkOwnerId = g_Ball.PossessionPlayerId;
+    // Check if a goalkeeper actually has the ball
+    if (gkOwnerId == NO_VALUE || g_Players[gkOwnerId].Role != PLAYER_ROLE_GOALKEEPER) {
+        return;
+    }
+
+    u8 gkTeamId = g_Players[gkOwnerId].TeamId;
+    
+    // Loop through all field players
+    for (u8 i = 0; i < 14; i++) { 
+        if (i == gkOwnerId) continue; // Skip the GK himself
+
+        if (gkTeamId == TEAM_1) { // Bottom GK has ball, players can't be in y > PENALTY_BOX_Y_BOTTOM
+            if (g_Players[i].TargetY > PENALTY_BOX_Y_BOTTOM) {
+                g_Players[i].TargetY = PENALTY_BOX_Y_BOTTOM;
+                g_Players[i].Status = PLAYER_STATUS_NONE;
+            }
+        } else { // Top GK has ball, players can't be in y < PENALTY_BOX_Y_TOP
+            if (g_Players[i].TargetY < PENALTY_BOX_Y_TOP) {
+                g_Players[i].TargetY = PENALTY_BOX_Y_TOP;
+                g_Players[i].Status = PLAYER_STATUS_NONE;
+            }
+        }
+    }
+}
 // +++ Get player id by role +++
 u8 GetPlayerIdByRole(u8 teamId, u8 role){
 	u8 playerId=NO_VALUE;
@@ -951,8 +1053,8 @@ void TickGoalKick() {
         if (g_RestartKickTeamId == TEAM_1) g_Players[gkId].Direction = DIRECTION_UP;
         else g_Players[gkId].Direction = DIRECTION_DOWN;
 
-        if (g_RestartKickTeamId == TEAM_1) Trampoline_VOID_P1(4,ShowFieldZone,FIELD_SOUTH_ZONE);
-        else Trampoline_VOID_P1(4,ShowFieldZone,FIELD_NORTH_ZONE);
+        if (g_RestartKickTeamId == TEAM_1) g_FieldScrollingActionInProgress=FIELD_SOUTH_ZONE;
+        else g_FieldScrollingActionInProgress=FIELD_NORTH_ZONE;
         
         // Position other players (Tactical Movement)
         for(u8 i=0; i<14; i++){
@@ -1258,9 +1360,9 @@ void TickThrowIn() {
          }
 
         // Show Zone
-        if (g_Ball.Y < 140) Trampoline_VOID_P1(4,ShowFieldZone,FIELD_NORTH_ZONE);
-        else if (g_Ball.Y > 280) Trampoline_VOID_P1(4,ShowFieldZone,FIELD_SOUTH_ZONE);
-        else Trampoline_VOID_P1(4,ShowFieldZone,FIELD_CENTRAL_ZONE);
+        if (g_Ball.Y < 140) g_FieldScrollingActionInProgress=FIELD_NORTH_ZONE;
+        else if (g_Ball.Y > 280) g_FieldScrollingActionInProgress=FIELD_SOUTH_ZONE;
+        else g_FieldScrollingActionInProgress=FIELD_CENTRAL_ZONE;
     }
     
     // Check Thrower Arrival
@@ -1773,6 +1875,24 @@ void UpdatePlayerPatternByDirection(u8 playerId){
 			g_Players[playerId].PatternId=GetPatternIdByPoseAndDirection(playerId);
 		}
 	}
+}
+// +++ Active field zone +++
+void TickActiveFieldZone(){
+
+	// Disable auto-camera zone switching during presentation/cutscenes
+	if (g_MatchStatus != MATCH_IN_ACTION) return;
+
+    if (g_ActiveFieldZone == FIELD_CENTRAL_ZONE) {
+        if (g_Ball.Y < 170) g_FieldScrollingActionInProgress=FIELD_NORTH_ZONE;
+        else if (g_Ball.Y > 320) g_FieldScrollingActionInProgress=FIELD_SOUTH_ZONE;
+    } 
+    else if (g_ActiveFieldZone == FIELD_NORTH_ZONE) {
+        if (g_Ball.Y > 190) g_FieldScrollingActionInProgress=FIELD_CENTRAL_ZONE;
+    }
+    else { // SOUTH
+        if (g_Ball.Y < 300) g_FieldScrollingActionInProgress=FIELD_CENTRAL_ZONE;
+    }
+	g_Ball.PreviousY=g_Ball.Y;
 }
 // +++ Get pattern id by pose and direction +++
 u8 GetPatternIdByPoseAndDirection(u8 playerId){

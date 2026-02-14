@@ -122,6 +122,8 @@ extern u8 				g_PonPonGrilsPoseCounter;
 extern bool 			g_peopleState;
 extern u8   			g_ponPonGirlsInitailized;
 extern u8               g_SoundRequest;
+extern u16              g_ShotCursorX;
+extern i8               g_ShotCursorDir;
 
 // ---------------
 // *** DEFINES ***
@@ -372,14 +374,22 @@ void V9990_LoadButtonsImageData();
 void InterruptHook();
 void Trampoline_VOID(u8 bank, void (*func)());
 void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1);
-u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)());
+u8 Trampoline_U8(u8 bank, u8 (*func)());
+void Trampoline_VOID_16_P2(u8 bank, void (*func)(u16,u16), u16 p1, u16 p2);
+bool Trampoline_BOOL_P1(u8 bank, u8 (*func)(u8), u8 p1);
+u8 Trampoline_U8_P2(u8 bank, u8 (*func)(u8, u8), u8 p1, u8 p2);
+u8 Trampoline_U8_P1(u8 bank, u8 (*func)(u8), u8 p1);
 void PlayVGM(u8 vgmId);
 void PlayPcm(u8 id);
 void V9990_ClearTextFromLayerA(u8 x, u8 y, u8 length);
 const TeamStats* GetTeamStats(u8 teamId);
 void PlayAyFx(u8 id);
+i32 Math_Abs32(i32 v);
+void Trampoline_VOID_P2(u8 bank, void (*func)(u8, bool), u8 p1, bool p2);
 
 // +++ SEGMENT 2 +++
+u8 GetClosestPlayerToBall(u8 teamId, u8 excludePlayerId);
+void PutBallOnPlayerFeet(u8 playerId);
 bool IsOffside(u8 playerId);
 void PerformPass(u8 toPlayerId);
 bool IsJoystickTriggerPressed();
@@ -401,8 +411,14 @@ void TickPlayerToOwnTarget();
 void PutPlayerSprite(u8 playerId);
 void UpdatePlayerPatternByDirection(u8 playerId);
 u8 GetPatternIdByPoseAndDirection(u8 playerId);
+void TickActiveFieldZone();
+void TickShotCursor();
+void EnforcePenaltyBoxRestriction();
+void TickShowKickOff();
 
 // +++ SEGMENT 3 +++
+void CornerKick(u8 teamId);
+void PutBallSprite();
 void PutPonPonGirlSprite(u8 ponPonGirlId);
 void V9990_InitMenuLayers();
 void V9990_InitPalette();
@@ -411,8 +427,19 @@ void InitPonPonGirls();
 void PeopleMoving(bool isBasicMoving);
 void TickPonPonGirlsAnimation();
 void TickGoalCelebration();
+void UpdateSpritesPositions();
+void TickTeamJoystick(u8 direction);
 
 // +++ SEGMENT 4 +++
+u8 GetBestPassTarget(u8 passerId);
+void GoalKick(u8 teamId);
+void BallInGoal(u8 teamScored);
+void BallThrowIn(u8 teamId);
+void TickCheckBallBoundaries();
+void TickGoalkeeperAnimation();
+void UpdatePassTarget();
+void TickBallCollision();
+void TickUpdateTime();
 u8 SelectTeam(u8 cursorPatternId, u8 excludeIndex);
 void ShowMenu();
 void MenuSpriteBlinking();
@@ -425,10 +452,14 @@ void SetTeam2Palette();
 void SetTeamsPresentationSpritesPosition();
 void SetPlayerTarget(u8 playerId);
 void ResetBallInfo(bool resetPossessionPlayer);
-void ShowFieldZone(u8 zone);
 void ShowHeaderInfo();
 void PrintTeamName(u8 x, u8 teamPaletteId) ;
 char *GetNumberString(u16 value);
+void TickBallFlying();
+void PerformShot(u16 targetX, u16 targetY);
 
 // +++ SEGMENT 5 +++
-
+void TickAI(u8 playerId);
+u16 GetOffsideLineY(u8 attackingTeamId);
+void TeamVictory(u8 teamId);
+void TimeUp();
