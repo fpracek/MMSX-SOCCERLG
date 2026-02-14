@@ -9,30 +9,30 @@ Symbol Table
     .__.H$L.                                                    =   00000000 L
   7 _GameStart                                                      00000908 GR
     _GetJoystickDirection                                           ******** GX
-  7 _GetNumberString                                                00000A73 GR
-  1 _GetNumberString_str_65536_1406                                 00000000 R
+  7 _GetNumberString                                                00000A84 GR
+  1 _GetNumberString_str_65536_1415                                 00000000 R
   7 _GetTeamPaletteById                                             000008CD GR
     _InitPonPonGirls                                                ******** GX
     _IsTeamJoystickTriggerPressed                                   ******** GX
   7 _MenuSpriteBlinking                                             000002EE GR
     _PSG_Mute                                                       ******** GX
     _PlayPcm                                                        ******** GX
-  7 _PrintTeamName                                                  00000973 GR
-  7 _ResetBallInfo                                                  00000CEC GR
+  7 _PrintTeamName                                                  00000984 GR
+  7 _ResetBallInfo                                                  00000CFD GR
   7 _ResetPlayersInfo                                               000003D2 GR
   7 _SelectTeam                                                     00000000 GR
     _SetPlayerBallPossession                                        ******** GX
-  7 _SetPlayerTarget                                                00000D0D GR
-  7 _SetPlayerTarget_k_KO_X_196608_1430                             00000E97 R
-  7 _SetPlayerTarget_k_KO_Y_T1_196608_1430                          00000E9E R
-  7 _SetPlayerTarget_k_KO_Y_T2_196608_1430                          00000EAC R
+  7 _SetPlayerTarget                                                00000D1E GR
+  7 _SetPlayerTarget_k_KO_X_196608_1439                             00000EA8 R
+  7 _SetPlayerTarget_k_KO_Y_T1_196608_1439                          00000EAF R
+  7 _SetPlayerTarget_k_KO_Y_T2_196608_1439                          00000EBD R
   7 _SetTeam1Palette                                                00000873 GR
   7 _SetTeam2Palette                                                000008A0 GR
-  7 _SetTeamsPresentationSpritesPosition                            00000B92 GR
-  7 _SetTeamsPresentationSpritesPosition_k_PlayerRoles_65537_142    00000CE5 R
-  7 _ShowField                                                      00000EBA GR
-  7 _ShowFieldZone                                                  00000B8E GR
-  7 _ShowHeaderInfo                                                 00000AB2 GR
+  7 _SetTeamsPresentationSpritesPosition                            00000BA3 GR
+  7 _SetTeamsPresentationSpritesPosition_k_PlayerRoles_65537_142    00000CF6 R
+  7 _ShowField                                                      00000ECB GR
+  7 _ShowFieldZone                                                  00000B9F GR
+  7 _ShowHeaderInfo                                                 00000AC3 GR
   7 _ShowMenu                                                       00000433 GR
     _Trampoline_VOID                                                ******** GX
     _Trampoline_VOID_P1                                             ******** GX
@@ -57,21 +57,21 @@ Symbol Table
     _VGM_Stop                                                       ******** GX
   7 ___str_0                                                        00000844 R
   7 ___str_1                                                        0000085B R
-  7 ___str_10                                                       00000B8A R
+  7 ___str_10                                                       00000B9B R
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 2
 Hexadecimal [32-Bits]
 
 Symbol Table
 
-  7 ___str_11                                                       00000B8C R
-  7 ___str_2                                                        00000A57 R
-  7 ___str_3                                                        00000A5B R
-  7 ___str_4                                                        00000A5F R
-  7 ___str_5                                                        00000A63 R
-  7 ___str_6                                                        00000A67 R
-  7 ___str_7                                                        00000A6B R
-  7 ___str_8                                                        00000A6F R
-  7 ___str_9                                                        00000B88 R
+  7 ___str_11                                                       00000B9D R
+  7 ___str_2                                                        00000A68 R
+  7 ___str_3                                                        00000A6C R
+  7 ___str_4                                                        00000A70 R
+  7 ___str_5                                                        00000A74 R
+  7 ___str_6                                                        00000A78 R
+  7 ___str_7                                                        00000A7C R
+  7 ___str_8                                                        00000A80 R
+  7 ___str_9                                                        00000B99 R
     __divsint                                                       ******** GX
     __divuint                                                       ******** GX
     __modsint                                                       ******** GX
@@ -231,18 +231,20 @@ Symbol Table
     _g_PSG_StatPort                                             =   000000A2 
     _g_PUTPNT                                                   =   0000F3F8 G
     _g_PassTargetPlayer                                             ******** GX
+    _g_PcmStartPlaying                                              ******** GX
     _g_Players                                                      ******** GX
+    _g_PmcSoundPlaying                                              ******** GX
     _g_PortAccessKeyboard                                       =   000000AA 
     _g_PortControl                                              =   000000AB 
     _g_PortPrimarySlot                                          =   000000A8 
     _g_PortReadKeyboard                                         =   000000A9 
-    _g_QUEBAK                                                   =   0000F971 G
-    _g_QUETAB                                                   =   0000F959 G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 5
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_QUEBAK                                                   =   0000F971 G
+    _g_QUETAB                                                   =   0000F959 G
     _g_QUEUEN                                                   =   0000FB3E G
     _g_QUEUES                                                   =   0000F3F3 G
     _g_RAMAD0                                                   =   0000F341 G
@@ -296,13 +298,13 @@ Symbol Table
     _g_SLTSL                                                    =   0000FFFF G
     _g_SLTTBL                                                   =   0000FCC5 G
     _g_SLTWRK                                                   =   0000FD09 G
-    _g_STATFL                                                   =   0000F3E7 G
-    _g_STRSRC                                                   =   00000002 G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 6
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_STATFL                                                   =   0000F3E7 G
+    _g_STRSRC                                                   =   00000002 G
     _g_SUBRID                                                   =   00000000 G
     _g_SVFFF8                                                   =   0000FFF8 G
     _g_SVFFFD                                                   =   0000FFFD G
@@ -356,18 +358,17 @@ Symbol Table
     _g_VDP_StatPort                                             =   00000099 
     _g_VOICAQ                                                   =   0000F975 G
     _g_VOICBQ                                                   =   0000F9F5 G
-    _g_VOICCQ                                                   =   0000FA75 G
-    _g_VOICEN                                                   =   0000FB38 G
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 7
 Hexadecimal [32-Bits]
 
 Symbol Table
 
+    _g_VOICCQ                                                   =   0000FA75 G
+    _g_VOICEN                                                   =   0000FB38 G
     _g_WINWID                                                   =   0000FCA5 G
     _g_WRPRIM                                                   =   0000F385 G
     _g_XSAVE                                                    =   0000FAFE G
     _g_YSAVE                                                    =   0000FB00 G
-
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 8
 Hexadecimal [32-Bits]
@@ -381,7 +382,7 @@ Area Table
    4 _HOME                                      size        0   flags    0
    5 _GSINIT                                    size        0   flags    0
    6 _GSFINAL                                   size        0   flags    0
-   7 _SEG4                                      size      F8A   flags    0
+   7 _SEG4                                      size      F9B   flags    0
    8 _INITIALIZER                               size        0   flags    0
    9 _CABS                                      size        0   flags    8
 

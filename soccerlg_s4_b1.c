@@ -264,7 +264,7 @@ void MenuSpriteBlinking(){
 
 // +++ Reset players info +++
 void ResetPlayersInfo(){
-	Trampoline_VOID_P1(3,SetPlayerBallPossession,NO_VALUE);
+	Trampoline_VOID_P1(2,SetPlayerBallPossession,NO_VALUE);
 	for(u8 i=0;i<14;i++){
 		g_Players[i].Direction=DIRECTION_NONE;
 		g_Players[i].PreviousDirection=g_Players[i].Direction;
@@ -399,6 +399,7 @@ void SetTeam1Palette(){
 void SetTeam2Palette(){
 	V9_SetPalette(48, 16, GetTeamPaletteById(g_Team2PaletteId));
 }
+// +++ Get team palette id +++
 const u16* GetTeamPaletteById(u8 id){
 	const u16* palette=g_Data_Palette_Team_ITA;
 	switch (id){
@@ -423,9 +424,10 @@ const u16* GetTeamPaletteById(u8 id){
 	}
 	return palette;
 }
-
 // +++ Game start +++
 void GameStart(){
+    g_PcmStartPlaying=FALSE;
+    g_PmcSoundPlaying=NO_VALUE;
     g_PassTargetPlayer=NO_VALUE;
     g_Team1ActivePlayer=NO_VALUE;
 	V9_SetDisplayEnable(FALSE);
@@ -445,8 +447,8 @@ void GameStart(){
 	ShowHeaderInfo();
     Trampoline_VOID(3,InitPonPonGirls);
     V9_SetDisplayEnable(TRUE);
+    V9_SetInterrupt(V9_INT_VBLANK);
 }
-
 // +++ Print team name +++
 void PrintTeamName(u8 x, u8 teamPaletteId) {
 

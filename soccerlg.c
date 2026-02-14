@@ -58,7 +58,25 @@ u8 				g_ponPonPatternIndex;
 PonPonGirlInfo  g_PonPonGirls[6];
 char            g_History1[20] = "PLY:      ";
 char            g_History2[20] = "CPU:      ";
-
+bool			g_PcmStartPlaying=FALSE;
+u8 				g_PmcSoundPlaying=NO_VALUE;
+u8              g_CornerKickTargetId = NO_VALUE;
+u8              g_CornerKickSide = CORNER_SIDE_LEFT;
+u8              g_ActionCooldown=0; 
+u8              g_ShootCooldown=0;
+bool		    g_GameWith2Players=FALSE;
+bool            g_GkIsGroundKick = FALSE; 
+u8 				g_GkAnimPlayerId = NO_VALUE;
+i8              g_GkRecoilY = 0;
+u8              g_GoalKickSide = CORNER_SIDE_LEFT;
+u8 				g_GkAnimTimer = 0;
+u8              g_ThrowInPlayerId = NO_VALUE;
+u8              g_GoalScorerId = NO_VALUE;
+u8 				g_ponPonPatternIndex=0;
+u8 				g_PonPonGrilsPoseCounter=0;
+bool 			g_peopleState=FALSE;
+u8   			g_ponPonGirlsInitailized=FALSE;
+u8              g_SoundRequest=NO_VALUE;
 
 // -----------------
 // *** CONSTANTS ***
@@ -95,6 +113,14 @@ extern const unsigned char  g_Data_Field_LayerB_Part3[16384];				// Segment 54
 extern const unsigned char  g_Data_Field_LayerB_Part4[15360];				// Segment 55
 extern const unsigned char  g_Data_Field_LayerB_Part5[16384];				// Segment 56
 
+const TeamStats g_TeamStats[] = {
+    { 3, 12, 5, 5, 14 }, // AUS (Standard)
+    { 5, 15, 8, 9, 14 }, // BRA (Super Fast, Strong, Pass++)
+    { 3, 17, 4, 5, 16 }, // ITA (Aggressive++, GK+)
+    { 3, 12, 6, 8, 14 }, // FRA (Pass++)
+    { 3, 15, 6, 5, 14 }, // GBR (Aggressive+)
+    { 5, 16, 7, 8, 15 }  // GER (Super Fast, Strong, Pass+)
+};
 
 const struct MusicEntry g_MusicEntry[] =
 {
@@ -180,6 +206,13 @@ void PlayPcm(u8 id){
 	}
 	SET_BANK_SEGMENT(1, currentSegment);
 	
+}
+
+// -----------
+// *** AY ***
+// -----------
+void PlayAyFx(u8 id){
+
 }
 
 // -----------
@@ -314,6 +347,13 @@ void V9990_WaitSynch()
         return;
     }
 }
+// +++ Clear text +++
+void V9990_ClearTextFromLayerA(u8 x, u8 y, u8 length){
+	for(u8 i=0;i<length;i++){
+		V9_Poke16(V9_CellAddrP1A(x,y), 0);
+		x++;
+	}
+}
 // +++ VBlank interrupt +++
 void V9_InterruptVBlank(){
 
@@ -325,9 +365,7 @@ void V9_InterruptVBlank(){
    
 	g_VSynch = TRUE;
 	if (g_FieldScrollingActionInProgress != NO_VALUE) {
-		u8 currentSegment = GET_BANK_SEGMENT(1);
-		TickGameFieldScrolling();
-		SET_BANK_SEGMENT(1, currentSegment);
+		Trampoline_VOID(2,TickGameFieldScrolling);
 	}
 	
 
@@ -347,6 +385,15 @@ __asm
 	rra
 	call	c, _V9_InterruptVBlank
 __endasm;
+}
+
+// -------------------------------
+// *** MISCELLANEUS FUNCTIONS ***
+// -------------------------------
+
+const TeamStats* GetTeamStats(u8 teamId) {
+    if (teamId > 5) return &g_TeamStats[0];
+    return &g_TeamStats[teamId];
 }
 
 // ------------

@@ -95,22 +95,214 @@ void InitPonPonGirls(){
         
 	}
 }
-// +++ Set player ball possession +++
-void SetPlayerBallPossession(u8 playerId){
-	if (playerId == NO_VALUE) {
-		return;
-	}
+// +++ Put ball sprite +++
+void TickGoalCelebration(){
+    if(g_MatchStatus!=MATCH_AFTER_IN_GOAL) return;
 
-	if(g_Players[playerId].TeamId==TEAM_1){
-		if (g_Players[playerId].Role != PLAYER_ROLE_GOALKEEPER) g_Team1ActivePlayer=playerId;
-	}
-	else{
-		if (g_Players[playerId].Role != PLAYER_ROLE_GOALKEEPER) g_Team2ActivePlayer=playerId;
-	}
+    
+    
+    g_Timer++;
+    // Blink effect
+    if((g_Timer % 10) < 5){
+        V9_SetBackgroundColor(8); // Cyan/Flash
+    } else {
+        V9_SetBackgroundColor(1); // Default Blue
+    }
 
-	g_Ball.PossessionTimer = 0; // Reset hold timer
+	// ------------------------------------
+	// CELEBRATION PHASE (First 2 Seconds)
+	// ------------------------------------
+	if (g_Timer < 120) {
+		u8 scoringTeamId = (g_RestartKickTeamId == TEAM_1) ? TEAM_2 : TEAM_1;
+		
+		// Determine visible boundaries based on Goal Location
+		u16 limitY_Top = FIELD_BOUND_Y_TOP;
+		u16 limitY_Bottom = FIELD_BOUND_Y_BOTTOM;
+		
+		if (g_Ball.Y < FIELD_CENTRAL_Y) { // Top Goal
+			limitY_Bottom = FIELD_BOUND_Y_TOP + 160; 
+		} else { // Bottom Goal
+			limitY_Top = FIELD_BOUND_Y_BOTTOM - 160;
+		}
+
+		// Move/Anim Lookup Tables
+        // Directions: NO, UP, UR, RI, DR, DO, DL, LE, UL
+        static const i8 k_CelebDX[] = { 0, 0, 1, 1, 1, 0, -1, -1, -1 };
+        static const i8 k_CelebDY[] = { 0, -1, -1, 0, 1, 1, 1, 0, -1 };
+
+		for(u8 i=0; i<15; i++){
+			if(i == REFEREE) continue;
+             u8 dir = g_Players[i].Direction;
+			
+			// Decide behavior based on team
+			if (g_Players[i].TeamId == scoringTeamId) {
+				// --- SCORING TEAM: Random Movement & Celebration Poses ---
+
+				// Change direction every 19 frames to be erratic (prime number avoids X/Y axis locking)
+				if ((g_Timer % 19) == 0) {
+					// Pseudo-random direction (1 to 8)
+					u8 rnd = (g_Timer * 3) + (i * 37); 
+					dir = (rnd % 8) + 1; 
+                    g_Players[i].Direction = dir;
+				}
+
+                i8 dy = k_CelebDY[dir];
+                i8 dx = k_CelebDX[dir];
+
+                if (dy < 0 && g_Players[i].Y > limitY_Top) g_Players[i].Y--;
+                else if (dy > 0 && g_Players[i].Y < limitY_Bottom) g_Players[i].Y++;
+                
+                if (dx < 0 && g_Players[i].X > FIELD_BOUND_X_LEFT) g_Players[i].X--;
+                else if (dx > 0 && g_Players[i].X < FIELD_BOUND_X_RIGHT) g_Players[i].X++;
+
+				// ANIMATION: Hands Up!
+				bool animFrame1 = ((g_Timer / 8) % 2) == 0;
+                bool isBack = (dy < 0);
+				
+                if (isBack) g_Players[i].PatternId = (animFrame1) ? PLAYER_POSE_CELEBRATION_BACK_1 : PLAYER_POSE_CELEBRATION_BACK_2;
+                else g_Players[i].PatternId = (animFrame1) ? PLAYER_POSE_CELEBRATION_FRONT_1 : PLAYER_POSE_CELEBRATION_FRONT_2;
+
+			} else {
+				// --- LOSING TEAM: Stand Still ---
+                bool isUp = (dir == DIRECTION_UP || dir == DIRECTION_UP_LEFT || dir == DIRECTION_UP_RIGHT);
+                g_Players[i].PatternId = isUp ? PLAYER_POSE_BACK : PLAYER_POSE_FRONT;
+			}
+		}
+	}
+    
+    if(g_Timer > 150){
+        V9_SetBackgroundColor(1);
+        V9990_ClearTextFromLayerA(12, 18, 8); // "IN  GOAL"
+        
+        g_MatchStatus = MATCH_BEFORE_KICK_OFF;
+        g_Ball.PossessionPlayerId = NO_VALUE;
+        g_Ball.KickMoveState = 0;
+        g_Ball.ShotActive = 0;
+        if(g_Team1ActivePlayer!=NO_VALUE) g_Players[g_Team1ActivePlayer].Status=PLAYER_STATUS_NONE;
+        if(g_Team2ActivePlayer!=NO_VALUE) g_Players[g_Team2ActivePlayer].Status=PLAYER_STATUS_NONE;
+        g_Team1ActivePlayer=NO_VALUE;
+        g_Team2ActivePlayer=NO_VALUE;
+        
+        g_Ball.X = FIELD_POS_X_CENTER;
+        g_Ball.Y = FIELD_POS_Y_CENTER;
+        g_Ball.PreviousY = g_Ball.Y;
+        PutBallSprite();
+        
+        for(u8 i=0; i<15; i++){
+            if(i==REFEREE || g_Players[i].TeamId==TEAM_1 || g_Players[i].TeamId==TEAM_2){
+                 // Force REFEREE Pose reset just in case
+                 if (i==REFEREE) {
+                     g_Players[i].Direction=DIRECTION_RIGHT;
+                     g_Players[i].LastPose=0;
+                 }
+                 Trampoline_VOID_P1(4,SetPlayerTarget,i);
+            }
+        }
+        
+        // FORCE SCROLLING TO CENTER
+        g_FieldScrollingActionInProgress=FIELD_CENTRAL_ZONE;
+    }
+}
+// +++ Put ball on screen +++
+void PutBallSprite(){
+	struct V9_Sprite attr;
+	attr.D=0;
+	attr.SC=0;
+	attr.Y = g_Ball.Y-g_FieldCurrentYPosition;
+
+	// 1. Determine Logical Size
+	u8 logicalSize = g_Ball.Size;
+	// Keep ball small (Size 1) when held by player
+	if (g_Ball.PossessionPlayerId != NO_VALUE) logicalSize = 1;
+
+	if (logicalSize == 0) logicalSize = 1;
+	if (logicalSize > 4) logicalSize = 4;
+
+	// 2. Check Movement with Cooldown
+	// Use a cooldown to prevent flickering when speed is low (sub-pixel movement)
+	static u8 s_StopCooldown = 0;
+	bool rawMovement = (g_Ball.OldX != g_Ball.X || g_Ball.OldY != g_Ball.Y);
+	
+	// Update Old Pos
+	g_Ball.OldX = g_Ball.X;
+	g_Ball.OldY = g_Ball.Y;
+
+	if (rawMovement) {
+		s_StopCooldown = 15; // Keep animation active for ~1/4 sec after last move
+	} else {
+		if (s_StopCooldown > 0) s_StopCooldown--;
+	}
+	
+	bool isAnimating = (s_StopCooldown > 0);
+
+	// 3. Determine Alternate Frame
+	// Use Global Frame Counter (bit 3 = change every 8 frames)
+	bool useAlt = isAnimating && ((g_FrameCounter & 8) != 0);
+	
+    static const u8 k_BallPatterns[] = { 
+        BALL_SIZE_1, BALL_SIZE_2, BALL_SIZE_3, BALL_SIZE_4, 
+        BALL_SIZE_5, BALL_SIZE_6, BALL_SIZE_7, BALL_SIZE_8 
+    };
+
+    u8 idx = (logicalSize - 1) * 2 + (useAlt ? 1 : 0);
+    attr.Pattern = k_BallPatterns[idx & 7];
+
+	attr.X = g_Ball.X;
+	attr.P = attr.D;
+	V9_SetSpriteP1(15, &attr);
 }
 
+// +++ Pon pon girls animation +++
+void TickPonPonGirlsAnimation(){
+	if(g_MatchStatus!=MATCH_AFTER_IN_GOAL){
+		if(!g_ponPonGirlsInitailized){
+			InitPonPonGirls();
+			g_ponPonGirlsInitailized=true;
+		
+		}
+		return;
+	}
+	g_ponPonGirlsInitailized=false;
+	if(g_PonPonGrilsPoseCounter==PON_PON_GIRLS_POSE_SPEED){
+		g_PonPonGrilsPoseCounter=0;
+	}
+	else{
+		g_PonPonGrilsPoseCounter++;
+		return;
+	}
+	
+
+
+	g_ponPonPatternIndex++;
+	if(g_ponPonPatternIndex >= 9) g_ponPonPatternIndex = 0;
+
+	u8 pat = g_GirlPatterns[g_ponPonPatternIndex];
+
+	for(u8 i=0; i<6; i++){
+		g_PonPonGirls[i].PatternId = pat;
+		PutPonPonGirlSprite(i);
+	}
+	g_peopleState=!g_peopleState;
+	PeopleMoving(g_peopleState);
+}
+// +++ People moving on goal +++
+void PeopleMoving(bool isBasicMoving){
+    u16 tileId=PUBLIC_TILE_1;
+    u8  yPosition=0;
+    if(!g_ActiveFieldZone==FIELD_NORTH_ZONE){
+        yPosition=62;
+    }
+
+
+    if(!isBasicMoving){
+        tileId=PUBLIC_TILE_2;
+    }
+    for (u8 y=yPosition;y<yPosition+2;y++){
+		for (u8 x=0;x<32;x++){
+			V9_Poke16(V9_CellAddrP1A(x,y), tileId);
+		}
+	}
+}
 // +++ Put Pon Pon Girl Sprite +++
 void PutPonPonGirlSprite(u8 ponPonGirlId){
 	struct V9_Sprite attr;

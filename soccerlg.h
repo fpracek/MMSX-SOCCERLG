@@ -103,7 +103,25 @@ extern u8 				g_ponPonPatternIndex;
 extern PonPonGirlInfo  	g_PonPonGirls[6];
 extern char             g_History1[20];
 extern char             g_History2[20];
-
+extern bool				g_PcmStartPlaying;
+extern u8               g_PmcSoundPlaying;
+extern u8               g_CornerKickTargetId;
+extern u8              	g_CornerKickSide;
+extern u8 				g_ActionCooldown;
+extern u8 				g_ShootCooldown;
+extern bool		    	g_GameWith2Players;
+extern bool             g_GkIsGroundKick;
+extern u8 				g_GkAnimPlayerId;
+extern i8               g_GkRecoilY;
+extern u8               g_GoalKickSide;
+extern u8 				g_GkAnimTimer;
+extern u8               g_ThrowInPlayerId;
+extern u8               g_GoalScorerId;
+extern u8 				g_ponPonPatternIndex;
+extern u8 				g_PonPonGrilsPoseCounter;
+extern bool 			g_peopleState;
+extern u8   			g_ponPonGirlsInitailized;
+extern u8               g_SoundRequest;
 
 // ---------------
 // *** DEFINES ***
@@ -111,6 +129,8 @@ extern char             g_History2[20];
 
 #define VGM_MENU                            0
 #define VGM_MATCH                           1
+
+#define AYFX_BALL							0
 
 #define SPRITE_BALL	11
 
@@ -355,22 +375,42 @@ void Trampoline_VOID_P1(u8 bank, void (*func)(u8), u8 p1);
 u8 Trampoline_VOID_RETURN(u8 bank, u8 (*func)());
 void PlayVGM(u8 vgmId);
 void PlayPcm(u8 id);
+void V9990_ClearTextFromLayerA(u8 x, u8 y, u8 length);
+const TeamStats* GetTeamStats(u8 teamId);
+void PlayAyFx(u8 id);
 
 // +++ SEGMENT 2 +++
+bool IsOffside(u8 playerId);
+void PerformPass(u8 toPlayerId);
+bool IsJoystickTriggerPressed();
 void MainSub();
 void LoadPresentation();
 void TickGameFieldScrolling();	
 void InitVariables();
 u8 GetJoystickDirection();
 bool IsTeamJoystickTriggerPressed();
+void MainGameLoop();
+void TickCornerKick();
+u8 GetPlayerIdByRole(u8 teamId, u8 role);
+u8 GetNoMovingPlayerPatternId(u8 direction);
+void SetPlayerBallPossession(u8 playerId);
+void TickGoalKick();
+void GoalkeeperWithBall(u8 teamId, bool isSteal);
+void TickThrowIn();
+void TickPlayerToOwnTarget();
+void PutPlayerSprite(u8 playerId);
+void UpdatePlayerPatternByDirection(u8 playerId);
+u8 GetPatternIdByPoseAndDirection(u8 playerId);
 
 // +++ SEGMENT 3 +++
 void PutPonPonGirlSprite(u8 ponPonGirlId);
 void V9990_InitMenuLayers();
 void V9990_InitPalette();
 void V9990_PrintLayerAStringAtPos(u8 x, u8 y, const c8* str);
-void SetPlayerBallPossession(u8 playerId);
 void InitPonPonGirls();
+void PeopleMoving(bool isBasicMoving);
+void TickPonPonGirlsAnimation();
+void TickGoalCelebration();
 
 // +++ SEGMENT 4 +++
 u8 SelectTeam(u8 cursorPatternId, u8 excludeIndex);
@@ -389,5 +429,6 @@ void ShowFieldZone(u8 zone);
 void ShowHeaderInfo();
 void PrintTeamName(u8 x, u8 teamPaletteId) ;
 char *GetNumberString(u16 value);
+
 // +++ SEGMENT 5 +++
 
